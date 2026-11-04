@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GymFlow – Daily Fitness Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Skip link for keyboard/screen-reader users -->
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<!-- ===== SIDEBAR NAV (desktop) ===== -->
+<nav class="sidebar" aria-label="Main navigation">
+  <div class="sidebar-brand">
+    <svg class="brand-icon" width="28" height="28" viewBox="0 0 28 28" aria-hidden="true" focusable="false">
+      <rect x="2" y="10" width="24" height="8" rx="4" fill="var(--color-primary)"/>
+      <rect x="0" y="12" width="4" height="4" rx="2" fill="var(--color-primary)"/>
+      <rect x="24" y="12" width="4" height="4" rx="2" fill="var(--color-primary)"/>
+      <rect x="6" y="8" width="4" height="12" rx="2" fill="var(--color-primary-dark)"/>
+      <rect x="18" y="8" width="4" height="12" rx="2" fill="var(--color-primary-dark)"/>
+    </svg>
+    <span class="brand-name">Gym<span>Flow</span></span>
+  </div>
+
+  <ul class="nav-list" role="list">
+    <li>
+      <a href="#dashboard" class="nav-link" data-view="dashboard" aria-current="page">
+        <svg class="nav-icon" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <rect x="2" y="2" width="7" height="7" rx="1.5" fill="currentColor"/>
+          <rect x="11" y="2" width="7" height="7" rx="1.5" fill="currentColor" opacity="0.5"/>
+          <rect x="2" y="11" width="7" height="7" rx="1.5" fill="currentColor" opacity="0.5"/>
+          <rect x="11" y="11" width="7" height="7" rx="1.5" fill="currentColor" opacity="0.5"/>
+        </svg>
+        Dashboard
+      </a>
+    </li>
+    <li>
+      <a href="#routines" class="nav-link" data-view="routines">
+        <svg class="nav-icon" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <rect x="2" y="4" width="12" height="2" rx="1" fill="currentColor"/>
+          <rect x="2" y="9" width="16" height="2" rx="1" fill="currentColor" opacity="0.6"/>
+          <rect x="2" y="14" width="10" height="2" rx="1" fill="currentColor" opacity="0.6"/>
+        </svg>
+        Routines
+      </a>
+    </li>
+    <li>
+      <a href="#water" class="nav-link" data-view="water">
+        <svg class="nav-icon" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <path d="M10 2 C10 2 4 9 4 13 a6 6 0 0 0 12 0 C16 9 10 2 10 2Z" fill="currentColor" opacity="0.8"/>
+          <path d="M7 14 a3 3 0 0 0 4 2" stroke="white" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        </svg>
+        Water
+      </a>
+    </li>
+    <li>
+      <a href="#weekly" class="nav-link" data-view="weekly">
+        <svg class="nav-icon" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <rect x="2" y="12" width="2.5" height="6" rx="1" fill="currentColor" opacity="0.5"/>
+          <rect x="6" y="8" width="2.5" height="10" rx="1" fill="currentColor" opacity="0.7"/>
+          <rect x="10" y="5" width="2.5" height="13" rx="1" fill="currentColor"/>
+          <rect x="14" y="9" width="2.5" height="9" rx="1" fill="currentColor" opacity="0.6"/>
+          <rect x="17" y="11" width="1.5" height="7" rx="0.75" fill="currentColor" opacity="0.4"/>
+        </svg>
+        Progress
+      </a>
+    </li>
+    <li>
+      <a href="#goals" class="nav-link" data-view="goals">
+        <svg class="nav-icon" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="1.8"/>
+          <circle cx="10" cy="10" r="4" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.6"/>
+          <circle cx="10" cy="10" r="1.5" fill="currentColor"/>
+        </svg>
+        Goals
+      </a>
+    </li>
+  </ul>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-footer-actions">
+      <button class="btn-sidebar-action" id="btn-export-data" type="button" aria-label="Export all data to JSON backup file">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M8 2v8m0 0l-3-3m3 3l3-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        Export data
+      </button>
+      <button class="btn-sidebar-action" id="btn-import-data" type="button" aria-label="Import data from JSON backup file">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M8 10V2m0 0L5 5m3-3l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        Import data
+      </button>
+    </div>
+    <button class="btn-reset-data" id="btn-reset" type="button"
+            aria-label="Reset all data to sample data">
+      <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" focusable="false">
+        <path d="M2 7 a5 5 0 1 1 1.5 3.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <path d="M2 10.5 L2 7 L5.5 7" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Reset data
+    </button>
+  </div>
+</nav>
+
+<!-- ===== BOTTOM NAV (mobile) ===== -->
+<nav class="bottom-nav" aria-label="Main navigation">
+  <a href="#dashboard" class="bottom-nav-link" data-view="dashboard" aria-current="page" aria-label="Dashboard">
+    <svg width="22" height="22" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+      <rect x="2" y="2" width="7" height="7" rx="1.5" fill="currentColor"/>
+      <rect x="11" y="2" width="7" height="7" rx="1.5" fill="currentColor" opacity="0.5"/>
+      <rect x="2" y="11" width="7" height="7" rx="1.5" fill="currentColor" opacity="0.5"/>
+      <rect x="11" y="11" width="7" height="7" rx="1.5" fill="currentColor" opacity="0.5"/>
+    </svg>
+    <span>Dashboard</span>
+  </a>
+  <a href="#routines" class="bottom-nav-link" data-view="routines" aria-label="Routines">
+    <svg width="22" height="22" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+      <rect x="2" y="4" width="12" height="2" rx="1" fill="currentColor"/>
+      <rect x="2" y="9" width="16" height="2" rx="1" fill="currentColor" opacity="0.6"/>
+      <rect x="2" y="14" width="10" height="2" rx="1" fill="currentColor" opacity="0.6"/>
+    </svg>
+    <span>Routines</span>
+  </a>
+  <a href="#water" class="bottom-nav-link" data-view="water" aria-label="Water tracker">
+    <svg width="22" height="22" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+      <path d="M10 2 C10 2 4 9 4 13 a6 6 0 0 0 12 0 C16 9 10 2 10 2Z" fill="currentColor" opacity="0.8"/>
+    </svg>
+    <span>Water</span>
+  </a>
+  <a href="#weekly" class="bottom-nav-link" data-view="weekly" aria-label="Weekly progress">
+    <svg width="22" height="22" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+      <rect x="2" y="12" width="2.5" height="6" rx="1" fill="currentColor" opacity="0.5"/>
+      <rect x="6" y="8" width="2.5" height="10" rx="1" fill="currentColor" opacity="0.7"/>
+      <rect x="10" y="5" width="2.5" height="13" rx="1" fill="currentColor"/>
+      <rect x="14" y="9" width="2.5" height="9" rx="1" fill="currentColor" opacity="0.6"/>
+    </svg>
+    <span>Progress</span>
+  </a>
+  <a href="#goals" class="bottom-nav-link" data-view="goals" aria-label="Goals">
+    <svg width="22" height="22" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+      <circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="1.8"/>
+      <circle cx="10" cy="10" r="4" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.6"/>
+      <circle cx="10" cy="10" r="1.5" fill="currentColor"/>
+    </svg>
+    <span>Goals</span>
+  </a>
+</nav>
+
+<!-- ===== MAIN CONTENT ===== -->
+<main id="main-content" class="main-content">
+
+  <!-- Accessible storage error banner -->
+  <div id="storage-error-banner" class="storage-error-banner" role="alert" aria-live="assertive" hidden>
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <line x1="8" y1="4" x2="8" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="8" cy="11.5" r="0.8" fill="currentColor"/>
+    </svg>
+    <span>Unable to save changes. Your browser storage may be full or disabled.</span>
+  </div>
+
+  <!-- ── DASHBOARD VIEW ── -->
+  <section id="view-dashboard" class="view" aria-labelledby="heading-dashboard">
+    <header class="view-header">
+      <div>
+        <h1 id="heading-dashboard">Dashboard</h1>
+        <p class="view-subtitle" id="dashboard-date"></p>
+      </div>
+    </header>
+
+    <div id="sample-banner" class="sample-banner" role="note" hidden>
+      <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+        <circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="8" y1="6" x2="8" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="8" cy="4.5" r="0.8" fill="currentColor"/>
+      </svg>
+      Showing sample data to get you started. Add your own routines in the Routines tab.
+    </div>
+
+    <!-- Stat cards row -->
+    <div class="stat-grid" role="list" aria-label="Today's stats">
+      <div class="stat-card" role="listitem">
+        <div class="stat-label">Today's Workout</div>
+        <div class="stat-value" id="stat-workout-name">–</div>
+        <div class="stat-sub" id="stat-workout-category">–</div>
+      </div>
+      <div class="stat-card" role="listitem">
+        <div class="stat-label">Exercises</div>
+        <div class="stat-value" id="stat-exercises-done">0 / 0</div>
+        <div class="progress-bar-track" aria-hidden="true">
+          <div class="progress-bar-fill" id="progress-exercises" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="stat-card" role="listitem">
+        <div class="stat-label">Water Today</div>
+        <div class="stat-value" id="stat-water">0 ml</div>
+        <div class="stat-sub" id="stat-water-goal">Goal: 2000 ml</div>
+      </div>
+      <div class="stat-card" role="listitem">
+        <div class="stat-label">Daily Goal</div>
+        <div class="stat-value" id="stat-goal-pct">0%</div>
+        <div class="progress-bar-track" aria-hidden="true">
+          <div class="progress-bar-fill" id="progress-goal" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Today's routine summary -->
+    <div class="card" id="dashboard-routine-card">
+      <div class="card-header">
+        <h2 class="card-title">Today's Routine</h2>
+        <a href="#routines" class="link-btn" data-view="routines">View all</a>
+      </div>
+      <div id="dashboard-routine-body">
+        <div class="empty-state" id="dashboard-empty">
+          <svg width="48" height="48" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+            <rect x="8" y="12" width="32" height="28" rx="4" fill="none" stroke="var(--color-text-muted)" stroke-width="2"/>
+            <line x1="14" y1="20" x2="34" y2="20" stroke="var(--color-text-muted)" stroke-width="2" stroke-linecap="round"/>
+            <line x1="14" y1="27" x2="28" y2="27" stroke="var(--color-text-muted)" stroke-width="2" stroke-linecap="round"/>
+            <line x1="14" y1="34" x2="22" y2="34" stroke="var(--color-text-muted)" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <p>No routine scheduled for today.</p>
+          <a href="#routines" class="btn btn-primary" data-view="routines">Create a routine</a>
+        </div>
+        <ul class="exercise-list" id="dashboard-exercise-list" aria-label="Today's exercises"></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── ROUTINES VIEW ── -->
+  <section id="view-routines" class="view" hidden aria-labelledby="heading-routines">
+    <header class="view-header">
+      <h1 id="heading-routines">Routines</h1>
+      <button class="btn btn-primary" id="btn-add-routine" type="button">
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+          <line x1="8" y1="2" x2="8" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Add Routine
+      </button>
+    </header>
+
+    <!-- Muscle group category filter -->
+    <div class="category-filters" role="group" aria-label="Filter routines by muscle group">
+      <button type="button" class="filter-pill active" data-filter="all">All Muscle Groups</button>
+      <button type="button" class="filter-pill" data-filter="chest">Chest</button>
+      <button type="button" class="filter-pill" data-filter="back">Back</button>
+      <button type="button" class="filter-pill" data-filter="legs">Legs</button>
+      <button type="button" class="filter-pill" data-filter="shoulders">Shoulders</button>
+      <button type="button" class="filter-pill" data-filter="arms">Arms</button>
+      <button type="button" class="filter-pill" data-filter="cardio">Cardio</button>
+    </div>
+
+    <div id="routines-list" role="list" aria-label="Workout routines"></div>
+
+    <div class="empty-state" id="routines-empty" hidden>
+      <svg width="48" height="48" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+        <rect x="6" y="14" width="36" height="24" rx="4" fill="none" stroke="var(--color-text-muted)" stroke-width="2"/>
+        <line x1="6" y1="20" x2="42" y2="20" stroke="var(--color-text-muted)" stroke-width="1.5"/>
+        <line x1="22" y1="14" x2="22" y2="38" stroke="var(--color-text-muted)" stroke-width="1.5"/>
+      </svg>
+      <p>No routines yet. Create your first workout routine.</p>
+      <button class="btn btn-primary" id="btn-add-routine-empty" type="button">Create Routine</button>
+    </div>
+  </section>
+
+  <!-- ── WATER VIEW ── -->
+  <section id="view-water" class="view" hidden aria-labelledby="heading-water">
+    <header class="view-header">
+      <h1 id="heading-water">Water Tracker</h1>
+    </header>
+
+    <div class="card water-goal-card">
+      <div class="water-goal-display" aria-live="polite" aria-label="Water intake progress">
+        <div class="water-big-num" id="water-total-display">0</div>
+        <div class="water-unit">ml</div>
+        <div class="water-goal-label">of <span id="water-goal-display">2000</span> ml goal</div>
+      </div>
+      <div class="progress-bar-track water-progress-track" aria-hidden="true">
+        <div class="progress-bar-fill" id="water-progress-bar" style="width:0%"></div>
+      </div>
+      <div class="water-actions">
+        <div class="form-row">
+          <label for="water-amount-input" class="sr-only">Water amount in ml</label>
+          <input type="number" id="water-amount-input" class="input"
+                 placeholder="Amount (ml)" min="1" max="2000"
+                 aria-label="Water amount in millilitres">
+          <button class="btn btn-primary" id="btn-add-water" type="button">Add</button>
+        </div>
+        <div id="water-input-error" class="field-error" role="alert" aria-live="assertive" hidden></div>
+        <div class="quick-add-row" aria-label="Quick add water">
+          <button class="btn btn-secondary quick-add" data-ml="150" type="button">+150 ml</button>
+          <button class="btn btn-secondary quick-add" data-ml="250" type="button">+250 ml</button>
+          <button class="btn btn-secondary quick-add" data-ml="500" type="button">+500 ml</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Today's Entries</h2>
+        <div class="water-goal-edit">
+          <label for="water-goal-input" class="label-inline">Daily goal:</label>
+          <input type="number" id="water-goal-input" class="input input-sm"
+                 min="100" max="10000" aria-label="Daily water goal in ml">
+          <span class="input-unit">ml</span>
+          <button class="btn btn-secondary btn-sm" id="btn-save-water-goal" type="button">Save</button>
+        </div>
+      </div>
+      <div id="water-goal-error" class="field-error" role="alert" aria-live="assertive" hidden></div>
+      <ul class="water-entries-list" id="water-entries-list" aria-label="Water entries" aria-live="polite"></ul>
+      <div class="empty-state empty-state-sm" id="water-empty" hidden>
+        <p>No entries yet. Add your first glass of water above.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── WEEKLY PROGRESS VIEW ── -->
+  <section id="view-weekly" class="view" hidden aria-labelledby="heading-weekly">
+    <header class="view-header">
+      <h1 id="heading-weekly">Weekly Progress</h1>
+    </header>
+
+    <div class="card">
+      <h2 class="card-title">Workout Completion — Last 7 Days</h2>
+      <p class="card-subtitle">Each bar shows the percentage of exercises completed on that day.</p>
+      <div class="chart-wrapper" aria-label="Weekly workout completion bar chart">
+        <svg id="weekly-chart" viewBox="0 0 560 220" role="img"
+             aria-labelledby="weekly-chart-title weekly-chart-desc">
+          <title id="weekly-chart-title">Weekly workout completion</title>
+          <desc id="weekly-chart-desc">Bar chart showing workout completion percentage for the past 7 days</desc>
+        </svg>
+      </div>
+      <!-- Accessible data table fallback -->
+      <details class="chart-table-details">
+        <summary>View as table</summary>
+        <table class="chart-table" id="weekly-chart-table" aria-label="Weekly completion data">
+          <thead>
+            <tr><th scope="col">Day</th><th scope="col">Completion %</th></tr>
+          </thead>
+          <tbody id="weekly-chart-table-body"></tbody>
+        </table>
+      </details>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title">This Week at a Glance</h2>
+      <div class="weekly-stats-grid" id="weekly-stats-grid" role="list" aria-label="Weekly statistics"></div>
+    </div>
+
+    <div class="card" id="card-workout-history">
+      <h2 class="card-title">Recent Activity History</h2>
+      <p class="card-subtitle">Daily workout completion and hydration log for the rolling week.</p>
+      <div id="workout-history-list" class="workout-history-list" role="list" aria-label="Workout activity history"></div>
+    </div>
+  </section>
+
+  <!-- ── GOALS VIEW ── -->
+  <section id="view-goals" class="view" hidden aria-labelledby="heading-goals">
+    <header class="view-header">
+      <h1 id="heading-goals">Goals</h1>
+    </header>
+
+    <div class="card">
+      <h2 class="card-title">Daily Goals</h2>
+      <p class="card-subtitle">Set your daily targets. Progress is tracked on the dashboard.</p>
+      <form id="goals-form" class="goals-form" novalidate aria-label="Daily goals form">
+        <div class="form-group">
+          <label for="goal-workouts" class="form-label">Workouts per day</label>
+          <div class="form-row">
+            <input type="number" id="goal-workouts" class="input" min="1" max="10"
+                   aria-describedby="goal-workouts-hint">
+            <span class="input-unit">sessions</span>
+          </div>
+          <p class="field-hint" id="goal-workouts-hint">1–10 sessions per day</p>
+          <div class="field-error" id="goal-workouts-error" role="alert" aria-live="assertive" hidden></div>
+        </div>
+
+        <div class="form-group">
+          <label for="goal-exercises" class="form-label">Exercises per day</label>
+          <div class="form-row">
+            <input type="number" id="goal-exercises" class="input" min="1" max="100"
+                   aria-describedby="goal-exercises-hint">
+            <span class="input-unit">exercises</span>
+          </div>
+          <p class="field-hint" id="goal-exercises-hint">1–100 exercises per day</p>
+          <div class="field-error" id="goal-exercises-error" role="alert" aria-live="assertive" hidden></div>
+        </div>
+
+        <div class="form-group">
+          <label for="goal-water" class="form-label">Water intake per day</label>
+          <div class="form-row">
+            <input type="number" id="goal-water" class="input" min="100" max="10000"
+                   aria-describedby="goal-water-hint">
+            <span class="input-unit">ml</span>
+          </div>
+          <p class="field-hint" id="goal-water-hint">100–10000 ml per day</p>
+          <div class="field-error" id="goal-water-error" role="alert" aria-live="assertive" hidden></div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save Goals</button>
+          <div class="form-success" id="goals-success" role="status" aria-live="polite" hidden>
+            Goals saved!
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title">Today's Progress Toward Goals</h2>
+      <div id="goals-progress-list" class="goals-progress-list"></div>
+    </div>
+
+    <div class="card" id="card-data-management">
+      <h2 class="card-title">Data Backup &amp; Recovery</h2>
+      <p class="card-subtitle">Export your routines, workout history, and personal fitness goals to a JSON backup file or restore from a previously exported file.</p>
+      <div class="data-actions-row">
+        <button type="button" class="btn btn-secondary" id="btn-export-data-goals">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
+            <path d="M8 2v8m0 0l-3-3m3 3l3-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          Export Backup (.json)
+        </button>
+        <button type="button" class="btn btn-secondary" id="btn-import-data-goals">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
+            <path d="M8 10V2m0 0L5 5m3-3l3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          Import Backup (.json)
+        </button>
+        <input type="file" id="file-import-data" accept=".json,application/json" class="sr-only" aria-label="Upload JSON backup file">
+      </div>
+      <div id="data-feedback-msg" class="field-feedback" role="status" aria-live="polite" hidden></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ===== ROUTINE MODAL ===== -->
+<div id="modal-routine" class="modal-backdrop" role="dialog" aria-modal="true"
+     aria-labelledby="modal-routine-title" hidden>
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modal-routine-title">New Routine</h2>
+      <button class="modal-close" id="modal-close-routine" type="button" aria-label="Close dialog">
+        <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <line x1="4" y1="4" x2="16" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <line x1="16" y1="4" x2="4" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form id="routine-form" novalidate>
+        <div class="form-group">
+          <label for="routine-name" class="form-label">Routine name <span aria-hidden="true">*</span></label>
+          <input type="text" id="routine-name" class="input" required
+                 maxlength="60" aria-required="true" autocomplete="off"
+                 aria-describedby="routine-name-error">
+          <div class="field-error" id="routine-name-error" role="alert" aria-live="assertive" hidden></div>
+        </div>
+
+        <div class="form-group">
+          <label for="routine-category" class="form-label">Category</label>
+          <select id="routine-category" class="input select">
+            <option value="chest">Chest</option>
+            <option value="back">Back</option>
+            <option value="legs">Legs</option>
+            <option value="shoulders">Shoulders</option>
+            <option value="arms">Arms</option>
+            <option value="cardio">Cardio</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <div class="exercises-header">
+            <h3 class="form-label">Exercises</h3>
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-add-exercise">
+              + Add Exercise
+            </button>
+          </div>
+          <div id="exercises-fields" class="exercises-fields"></div>
+          <div class="field-error" id="exercises-error" role="alert" aria-live="assertive" hidden></div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-routine">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-save-routine">Save Routine</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CONFIRM RESET MODAL ===== -->
+<div id="modal-reset" class="modal-backdrop" role="dialog" aria-modal="true"
+     aria-labelledby="modal-reset-title" hidden>
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modal-reset-title">Reset All Data?</h2>
+      <button class="modal-close" id="modal-close-reset" type="button" aria-label="Close dialog">
+        <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <line x1="4" y1="4" x2="16" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <line x1="16" y1="4" x2="4" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-message">This will permanently delete all your routines, water entries, and goal settings, and restore the sample data. This cannot be undone.</p>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btn-cancel-reset">Cancel</button>
+        <button type="button" class="btn btn-danger" id="btn-confirm-reset">Reset Everything</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CONFIRM DELETE ROUTINE MODAL ===== -->
+<div id="modal-delete-routine" class="modal-backdrop" role="dialog" aria-modal="true"
+     aria-labelledby="modal-delete-routine-title" hidden>
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modal-delete-routine-title">Delete Routine?</h2>
+      <button class="modal-close" id="modal-close-delete-routine" type="button" aria-label="Close dialog">
+        <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <line x1="4" y1="4" x2="16" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <line x1="16" y1="4" x2="4" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-message" id="modal-delete-routine-msg">Are you sure you want to delete this routine? This cannot be undone.</p>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btn-cancel-delete-routine">Cancel</button>
+        <button type="button" class="btn btn-danger" id="btn-confirm-delete-routine">Delete Routine</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
+

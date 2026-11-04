@@ -1,0 +1,751 @@
+/* ===================================================================
+   GYMFLOW PROTOTYPE C: LIVING INTERFACE (v2 refined)
+   Fluid progress visuals, organic telemetry, responsive SVG micro-interactions.
+   =================================================================== */
+
+:root {
+  --liv-bg: #07090f;
+  --liv-surface: #0e121d;
+  --liv-surface-elevated: #141b2a;
+  --liv-border: rgba(255, 255, 255, 0.08);
+
+  --liv-lime: #10b981;
+  --liv-lime-bright: #34d399;
+  --liv-cyan: #06b6d4;
+  --liv-cyan-bright: #22d3ee;
+  --liv-indigo: #6366f1;
+
+  --liv-text: #f8fafc;
+  --liv-text-muted: #94a3b8;
+  --liv-text-dim: #64748b;
+
+  --liv-radius: 16px;
+  --liv-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --liv-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body.living-theme {
+  background-color: var(--liv-bg);
+  color: var(--liv-text);
+  font-family: var(--liv-font);
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Ambient dynamic backdrop glows */
+.ambient-glow {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.18;
+}
+
+.aura-lime {
+  width: 500px;
+  height: 500px;
+  background: var(--liv-lime);
+  top: -100px;
+  right: -100px;
+}
+
+.aura-cyan {
+  width: 600px;
+  height: 600px;
+  background: var(--liv-cyan);
+  bottom: -150px;
+  left: -150px;
+}
+
+.living-wrapper {
+  position: relative;
+  z-index: 1;
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 24px 32px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Header */
+.living-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--liv-border);
+}
+
+.living-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.pulse-orb {
+  width: 32px;
+  height: 32px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.orb-core {
+  width: 12px;
+  height: 12px;
+  background: var(--liv-cyan);
+  border-radius: 50%;
+  box-shadow: 0 0 12px var(--liv-cyan);
+}
+
+.orb-ring {
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--liv-cyan);
+  border-radius: 50%;
+  opacity: 0.5;
+  animation: pulse-ring 2.5s infinite;
+}
+
+.brand-title {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+.brand-tag {
+  font-family: var(--liv-mono);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  color: var(--liv-cyan);
+  display: block;
+}
+
+.living-streak-hub {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 8px 16px;
+  border-radius: 30px;
+  border: 1px solid var(--liv-border);
+}
+
+.streak-flame-icon {
+  font-size: 18px;
+}
+
+.streak-data {
+  display: flex;
+  flex-direction: column;
+}
+
+.streak-count {
+  font-family: var(--liv-mono);
+  font-size: 13px;
+  font-weight: 800;
+  color: #fbbf24;
+}
+
+.streak-label {
+  font-family: var(--liv-mono);
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  color: var(--liv-text-muted);
+}
+
+/* Grid Layout */
+.living-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 32px;
+  align-items: start;
+}
+
+.living-main-column {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Hero Concentric Ring Card */
+.living-hero-card {
+  background: var(--liv-surface);
+  border: 1px solid var(--liv-border);
+  border-radius: var(--liv-radius);
+  padding: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+}
+
+.living-hero-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--liv-lime-bright), var(--liv-cyan-bright));
+}
+
+.hero-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hero-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--liv-mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--liv-lime-bright);
+}
+
+.pulse-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--liv-lime-bright);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--liv-lime-bright);
+}
+
+.hero-workout-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.hero-routine-focus {
+  font-family: var(--liv-mono);
+  font-size: 11px;
+  color: var(--liv-text-muted);
+  letter-spacing: 0.08em;
+}
+
+.routine-quick-switch {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.switch-pill {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--liv-text-muted);
+  border: 1px solid var(--liv-border);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.switch-pill:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.switch-pill.active {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: var(--liv-lime-bright);
+  color: var(--liv-lime-bright);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
+}
+
+/* Concentric Triple Rings */
+.concentric-ring-stage {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.concentric-svg {
+  transform: rotate(-90deg);
+}
+
+.ring-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.05);
+  stroke-width: 6;
+}
+
+.ring-fill {
+  fill: none;
+  stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ring-workout {
+  stroke: var(--liv-lime-bright);
+}
+
+.ring-water {
+  stroke: var(--liv-cyan-bright);
+}
+
+.ring-target {
+  stroke: var(--liv-indigo);
+}
+
+.concentric-center-label {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.center-pct {
+  font-family: var(--liv-mono);
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.center-sub {
+  font-family: var(--liv-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--liv-text-dim);
+}
+
+/* Filter Bar */
+.living-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--liv-border);
+  border-radius: var(--liv-radius);
+}
+
+.filter-caption {
+  font-family: var(--liv-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--liv-text-dim);
+}
+
+.filter-chips-list {
+  display: flex;
+  gap: 8px;
+}
+
+.living-filter-chip {
+  background: transparent;
+  color: var(--liv-text-muted);
+  border: 1px solid transparent;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.living-filter-chip:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+.living-filter-chip.active {
+  background: rgba(6, 182, 212, 0.12);
+  border-color: var(--liv-cyan-bright);
+  color: var(--liv-cyan-bright);
+}
+
+/* Living Exercise Cards (Refined 2-column grid on desktop) */
+.living-exercise-stream {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.living-card {
+  background: var(--liv-surface);
+  border: 1px solid var(--liv-border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.living-card:hover {
+  background: var(--liv-surface-elevated);
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
+}
+
+.living-card.completed {
+  border-color: rgba(16, 185, 129, 0.35);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.06) 0%, rgba(14, 18, 29, 0.98) 100%);
+}
+
+.living-card-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+}
+
+.living-card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.muscle-pill {
+  font-family: var(--liv-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--liv-cyan-bright);
+  text-transform: uppercase;
+}
+
+.living-exercise-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.3;
+}
+
+.living-specs-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--liv-text-muted);
+  flex-wrap: wrap;
+}
+
+.spec-bullet {
+  color: var(--liv-text-dim);
+}
+
+.living-completion-toggle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--liv-border);
+  color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+}
+
+.living-completion-toggle:hover {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: var(--liv-lime-bright);
+}
+
+.living-completion-toggle.completed {
+  background: var(--liv-lime-bright);
+  border-color: var(--liv-lime-bright);
+  color: #07090f;
+  box-shadow: 0 0 14px rgba(52, 211, 153, 0.4);
+}
+
+/* Right Side Column */
+.living-side-column {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.living-panel {
+  background: var(--liv-surface);
+  border: 1px solid var(--liv-border);
+  border-radius: var(--liv-radius);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Fluid Hydration Tank */
+.reservoir-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.reservoir-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reservoir-title {
+  font-family: var(--liv-mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--liv-text-muted);
+}
+
+.reservoir-badge {
+  font-family: var(--liv-mono);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--liv-cyan-bright);
+}
+
+.fluid-tank-visual {
+  height: 120px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  border: 1px solid rgba(6, 182, 212, 0.2);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fluid-water-level {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(180deg, rgba(6, 182, 212, 0.4) 0%, rgba(6, 182, 212, 0.8) 100%);
+  transition: height 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.fluid-wave {
+  position: absolute;
+  top: -8px;
+  left: 0;
+  right: 0;
+  height: 16px;
+  background-image: radial-gradient(circle at 10px 0, transparent 8px, rgba(34, 211, 238, 0.6) 9px);
+  background-size: 20px 16px;
+  animation: wave-anim 4s linear infinite;
+}
+
+.fluid-readout {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 6px 14px;
+  border-radius: 20px;
+  backdrop-filter: blur(4px);
+}
+
+.fluid-current {
+  font-family: var(--liv-mono);
+  font-size: 26px;
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+.fluid-target {
+  font-family: var(--liv-mono);
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.fluid-controls {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.fluid-sip-btn {
+  background: rgba(6, 182, 212, 0.08);
+  border: 1px solid rgba(6, 182, 212, 0.2);
+  border-radius: 8px;
+  padding: 10px 4px;
+  color: var(--liv-cyan-bright);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.fluid-sip-btn:hover {
+  background: var(--liv-cyan-bright);
+  color: #07090f;
+  box-shadow: 0 0 14px rgba(6, 182, 212, 0.4);
+}
+
+.fluid-sip-btn span {
+  font-family: var(--liv-mono);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.fluid-sip-btn small {
+  font-family: var(--liv-mono);
+  font-size: 8px;
+  letter-spacing: 0.1em;
+}
+
+/* Biomechanical Rhythm */
+.rhythm-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.rhythm-metric {
+  font-family: var(--liv-mono);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.text-lime { color: var(--liv-lime-bright); }
+
+.rhythm-bars {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  height: 100px;
+  padding: 12px 10px 0;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 8px;
+}
+
+.r-bar-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  height: 100%;
+  width: 28px;
+}
+
+.r-bar-stem {
+  width: 12px;
+  background: rgba(16, 185, 129, 0.5);
+  border-radius: 6px;
+  margin-top: auto;
+  transition: height 0.4s ease;
+}
+
+.r-bar-stem.rest {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.r-bar-stem.active {
+  background: var(--liv-lime-bright);
+  box-shadow: 0 0 12px var(--liv-lime-bright);
+}
+
+.r-bar-day {
+  font-family: var(--liv-mono);
+  font-size: 8px;
+  color: var(--liv-text-dim);
+}
+
+.r-bar-slot.active .r-bar-day {
+  color: var(--liv-lime-bright);
+  font-weight: 700;
+}
+
+/* Keyframes */
+@keyframes pulse-ring {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  50% { transform: scale(1.2); opacity: 0; }
+  100% { transform: scale(0.9); opacity: 0; }
+}
+
+@keyframes wave-anim {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-20px); }
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .living-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .living-wrapper {
+    padding: 16px 12px;
+  }
+  .living-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .living-brand {
+    gap: 10px;
+  }
+  .brand-title {
+    font-size: 17px;
+  }
+  .living-streak-hub {
+    padding: 6px 12px;
+    gap: 6px;
+  }
+  .streak-count {
+    font-size: 11px;
+  }
+  .streak-label {
+    display: none;
+  }
+  .living-hero-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 20px 16px;
+  }
+  .concentric-ring-stage {
+    align-self: center;
+  }
+  .living-filter-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .filter-chips-list {
+    flex-wrap: wrap;
+  }
+  .living-exercise-stream {
+    grid-template-columns: 1fr;
+  }
+  .living-card {
+    padding: 14px 16px;
+  }
+}

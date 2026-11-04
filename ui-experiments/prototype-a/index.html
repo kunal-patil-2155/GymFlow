@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GymFlow :: Prototype A — Spatial Performance</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="spatial-theme">
+  <div class="spatial-grid-overlay" aria-hidden="true"></div>
+
+  <!-- App Container -->
+  <div class="spatial-app">
+    <!-- Tactical Command Rail (Left) -->
+    <aside class="tactical-rail" aria-label="Navigation">
+      <div class="rail-brand">
+        <div class="rail-logo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <polygon points="12 2 2 7 12 12 22 7 12 2" stroke="var(--lime)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="2 17 12 22 22 17" stroke="var(--cyan)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="2 12 12 17 22 12" stroke="var(--lime)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <span class="rail-title">GF//01</span>
+      </div>
+
+      <nav class="rail-nav">
+        <button class="rail-btn active" data-view="dashboard" title="Tactical HUD">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          <span>HUD</span>
+        </button>
+        <button class="rail-btn" data-view="routines" title="Workout Protocols">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v8H2z"/><path d="M6 8v8"/><path d="M10 8v8"/></svg>
+          <span>ROUTINES</span>
+        </button>
+        <button class="rail-btn" data-view="hydration" title="Hydration Telemetry">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+          <span>HYDRA</span>
+        </button>
+        <button class="rail-btn" data-view="analytics" title="Biometrics">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          <span>STATS</span>
+        </button>
+      </nav>
+
+      <div class="rail-footer">
+        <div class="system-status-pill">
+          <span class="status-dot"></span>
+          <span class="status-code">ONLINE</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Spatial Stage -->
+    <main class="spatial-viewport">
+      <!-- Top HUD Telemetry Bar -->
+      <header class="hud-bar">
+        <div class="hud-meta">
+          <div class="hud-tag">SPATIAL PERFORMANCE LAB // EXP-A</div>
+          <h1 class="hud-title">MISSION DASHBOARD</h1>
+          <div class="hud-timestamp" id="hud-date">WEDNESDAY, 04 NOV 2026</div>
+        </div>
+
+        <div class="hud-metrics">
+          <div class="telemetry-pill">
+            <span class="pill-label">STREAK</span>
+            <span class="pill-val text-lime" id="hud-streak">4 DAYS</span>
+          </div>
+          <div class="telemetry-pill">
+            <span class="pill-label">COMPLETION</span>
+            <span class="pill-val text-cyan" id="hud-completion">50%</span>
+          </div>
+          <div class="telemetry-pill">
+            <span class="pill-label">HYDRATION</span>
+            <span class="pill-val text-cyan" id="hud-water-pill">1,750 / 3,000 ML</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Spatial Asymmetric Content Layout -->
+      <div class="spatial-layout">
+        <!-- Center Arena: Mission & Exercises -->
+        <section class="spatial-arena">
+          <!-- Active Mission Banner -->
+          <div class="mission-panel">
+            <div class="mission-top">
+              <div class="mission-badge">ACTIVE PROTOCOL</div>
+              <div class="mission-selector-wrap">
+                <select id="routine-selector" class="spatial-select">
+                  <option value="r1">Push Power Hypertrophy</option>
+                  <option value="r2">Pull Strength Protocol</option>
+                  <option value="r3">Legs & Core Conditioning</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mission-info">
+              <div class="mission-titles">
+                <h2 class="mission-name" id="active-routine-name">Push Power Hypertrophy</h2>
+                <div class="mission-category-badge" id="active-routine-cat">CHEST / TRICEPS / DELTS</div>
+              </div>
+              <div class="mission-progress-display">
+                <div class="progress-radial-wrap">
+                  <svg class="progress-radial" width="76" height="76" viewBox="0 0 76 76">
+                    <circle cx="38" cy="38" r="32" class="radial-track" />
+                    <circle cx="38" cy="38" r="32" class="radial-fill" id="radial-progress-bar" stroke-dasharray="201" stroke-dashoffset="100" />
+                  </svg>
+                  <span class="radial-text" id="radial-progress-text">2/4</span>
+                </div>
+                <div class="progress-caption">
+                  <span class="stat-highlight" id="completed-count-label">2 of 4 Complete</span>
+                  <span class="stat-sub">50% of today's target volume</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Category Filter Pills -->
+            <div class="filter-stream">
+              <span class="filter-label">ISOLATE:</span>
+              <button class="filter-chip active" data-filter="all">ALL</button>
+              <button class="filter-chip" data-filter="chest">CHEST</button>
+              <button class="filter-chip" data-filter="shoulders">SHOULDERS</button>
+              <button class="filter-chip" data-filter="arms">ARMS</button>
+            </div>
+          </div>
+
+          <!-- Spatial Exercise Stream -->
+          <div class="stream-header">
+            <h3 class="stream-title">EXERCISE EXECUTION MATRIX</h3>
+            <span class="stream-hint">Click card or checkbox to toggle completion state</span>
+          </div>
+
+          <div class="spatial-cards-grid" id="exercise-stream">
+            <!-- Exercise 1 -->
+            <article class="spatial-card completed" data-id="e1" data-cat="chest">
+              <div class="card-spatial-glow"></div>
+              <div class="card-header">
+                <div class="card-index">01</div>
+                <div class="card-meta">
+                  <h4 class="card-title">Incline Barbell Bench Press</h4>
+                  <span class="card-cat-tag">CHEST</span>
+                </div>
+                <button class="action-check-ring checked" aria-label="Toggle Complete">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                </button>
+              </div>
+              <div class="card-specs">
+                <div class="spec-cell">
+                  <span class="spec-label">SETS</span>
+                  <span class="spec-val">4</span>
+                </div>
+                <div class="spec-cell">
+                  <span class="spec-label">REPS</span>
+                  <span class="spec-val">8 - 10</span>
+                </div>
+                <div class="spec-cell">
+                  <span class="spec-label">REST</span>
+                  <span class="spec-val">90 SEC</span>
+                </div>
+              </div>
+              <div class="card-spatial-footer">
+                <span class="spatial-status-text">STATUS: RECORDED</span>
+                <span class="spatial-metric-dot"></span>
+              </div>
+            </article>
+
+            <!-- Exercise 2 -->
+            <article class="spatial-card completed" data-id="e2" data-cat="chest">
+              <div class="card-spatial-glow"></div>
+              <div class="card-header">
+                <div class="card-index">02</div>
+                <div class="card-meta">
+                  <h4 class="card-title">Flat Dumbbell Flyes</h4>
+                  <span class="card-cat-tag">CHEST</span>
+                </div>
+                <button class="action-check-ring checked" aria-label="Toggle Complete">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                </button>
+              </div>
+              <div class="card-specs">
+                <div class="spec-cell">
+                  <span class="spec-label">SETS</span>
+                  <span class="spec-val">3</span>
+                </div>
+                <div class="spec-cell">
+                  <span class="spec-label">REPS</span>
+                  <span class="spec-val">12</span>
+                </div>
+                <div class="spec-cell">
+                  <span class="spec-label">REST</span>
+                  <span class="spec-val">60 SEC</span>
+                </div>
+              </div>
+              <div class="card-spatial-footer">
+                <span class="spatial-status-text">STATUS: RECORDED</span>
+                <span class="spatial-metric-dot"></span>
+              </div>
+            </article>
+
+            <!-- Exercise 3 -->
+            <article class="spatial-card" data-id="e3" data-cat="shoulders">
+              <div class="card-spatial-glow"></div>
+              <div class="card-header">
+                <div class="card-index">03</div>
+                <div class="card-meta">
+                  <h4 class="card-title">Seated Overhead Dumbbell Press</h4>
+                  <span class="card-cat-tag">SHOULDERS</span>
+                </div>
+                <button class="action-check-ring" aria-label="Toggle Complete">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                </button>
+              </div>
+              <div class="card-specs">
+                <div class="spec-cell">
+                  <span class="spec-label">SETS</span>
+                  <span class="spec-val">4</span>
+                </div>
+                <div class="spec-cell">
+                  <span class="spec-label">REPS</span>
+                  <span class="spec-val">10</span>
+                </div>
+                <div class="spec-cell">
+                  <span class="spec-label">REST</span>
+                  <span class="spec-val">75 SEC</span>
+                </div>
+              </div>
+              <div class="card-spatial-footer">
+                <span class="spatial-status-text">STATUS: PENDING</span>
+                <span class="spatial-metric-dot dim"></span>
+              </div>
+            </article>
+
+            <!-- Exercise 4 -->
+            <article class="spatial-card" data-id="e4" data-cat="arms">
+              <div class="card-spatial-glow"></div>
+              <div class="card-header">
+                <div class="card-index">04</div>
+                <div class="card-meta">
+                  <h4 class="card-title">Cable Tricep Pushdown</h4>
+                  <span class="card-cat-tag">ARMS</span>
+                </div>
+                <button class="action-check-ring" aria-label="Toggle Complete">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                </button>
+              </div>
+              <div class="card-specs">
+                <div class="spec-cell">
+                  <span class="spec-label">SETS</span>
+                  <span class="spec-val">3</span>
+                </div>
+                <div class="spec-cell">
+                  <span class="spec-label">REPS</span>
+                  <span class="spec-val">15</span>
+                </div>
+                <div class="spec-cell">
+                  <span class="spec-label">REST</span>
+                  <span class="spec-val">45 SEC</span>
+                </div>
+              </div>
+              <div class="card-spatial-footer">
+                <span class="spatial-status-text">STATUS: PENDING</span>
+                <span class="spatial-metric-dot dim"></span>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- Right Telemetry Dock: Biometrics & Hydration -->
+        <aside class="spatial-dock">
+          <!-- Spatial Hydration Pod -->
+          <div class="dock-card hydration-dock">
+            <div class="dock-header">
+              <div class="dock-title-group">
+                <span class="dock-indicator cyan"></span>
+                <h3 class="dock-title">HYDRATION TELEMETRY</h3>
+              </div>
+              <span class="dock-badge" id="water-pct-badge">58%</span>
+            </div>
+
+            <div class="spatial-gauge-container">
+              <div class="gauge-display">
+                <span class="gauge-val" id="water-current-display">1,750</span>
+                <span class="gauge-unit">/ 3,000 ML</span>
+              </div>
+              <div class="spatial-linear-gauge">
+                <div class="gauge-fill" id="water-gauge-fill" style="width: 58.3%;"></div>
+              </div>
+            </div>
+
+            <div class="water-actions-spatial">
+              <button class="water-btn" data-add="250">+250 ML</button>
+              <button class="water-btn" data-add="500">+500 ML</button>
+              <button class="water-btn" data-add="750">+750 ML</button>
+            </div>
+          </div>
+
+          <!-- 7-Day Performance Grid -->
+          <div class="dock-card analytics-dock">
+            <div class="dock-header">
+              <div class="dock-title-group">
+                <span class="dock-indicator lime"></span>
+                <h3 class="dock-title">7-DAY PERFORMANCE CYCLE</h3>
+              </div>
+              <span class="dock-badge text-lime">OPTIMAL</span>
+            </div>
+
+            <div class="spatial-chart-bars" id="spatial-chart">
+              <div class="chart-col">
+                <div class="col-bar-wrap"><div class="col-bar" style="height: 100%;"></div></div>
+                <span class="col-day">THU</span>
+              </div>
+              <div class="chart-col">
+                <div class="col-bar-wrap"><div class="col-bar" style="height: 75%;"></div></div>
+                <span class="col-day">FRI</span>
+              </div>
+              <div class="chart-col">
+                <div class="col-bar-wrap"><div class="col-bar" style="height: 50%;"></div></div>
+                <span class="col-day">SAT</span>
+              </div>
+              <div class="chart-col">
+                <div class="col-bar-wrap"><div class="col-bar rest" style="height: 20%;"></div></div>
+                <span class="col-day">SUN</span>
+              </div>
+              <div class="chart-col">
+                <div class="col-bar-wrap"><div class="col-bar" style="height: 100%;"></div></div>
+                <span class="col-day">MON</span>
+              </div>
+              <div class="chart-col">
+                <div class="col-bar-wrap"><div class="col-bar" style="height: 100%;"></div></div>
+                <span class="col-day">TUE</span>
+              </div>
+              <div class="chart-col today">
+                <div class="col-bar-wrap"><div class="col-bar active" style="height: 50%;" id="chart-today-bar"></div></div>
+                <span class="col-day">TODAY</span>
+              </div>
+            </div>
+
+            <div class="dock-stats-mini">
+              <div class="mini-stat">
+                <span class="mini-lbl">WEEKLY VOL</span>
+                <span class="mini-val">22 EXERCISES</span>
+              </div>
+              <div class="mini-stat">
+                <span class="mini-lbl">ADHERENCE</span>
+                <span class="mini-val text-lime">88.5%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- System Telemetry Pod -->
+          <div class="dock-card system-dock">
+            <div class="dock-header">
+              <div class="dock-title-group">
+                <span class="dock-indicator"></span>
+                <h3 class="dock-title">TELEMETRY DIAGNOSTICS</h3>
+              </div>
+            </div>
+            <div class="diag-lines">
+              <div class="diag-row">
+                <span class="diag-key">LOCAL ARCHIVE</span>
+                <span class="diag-val">SYNCHRONIZED</span>
+              </div>
+              <div class="diag-row">
+                <span class="diag-key">ACTIVE PROFILE</span>
+                <span class="diag-val">ATHLETE // HYPERTROPHY</span>
+              </div>
+              <div class="diag-row">
+                <span class="diag-key">SYSTEM MODE</span>
+                <span class="diag-val text-lime">OFFLINE SECURE</span>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

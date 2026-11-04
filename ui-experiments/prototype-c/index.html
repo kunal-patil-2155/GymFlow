@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GymFlow :: Prototype C — Living Interface</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="living-theme">
+  <!-- Ambient Background Canvas Glows -->
+  <div class="ambient-glow aura-lime" aria-hidden="true"></div>
+  <div class="ambient-glow aura-cyan" aria-hidden="true"></div>
+
+  <div class="living-wrapper">
+    <!-- Header: Dynamic Living Bar -->
+    <header class="living-header">
+      <div class="living-brand">
+        <div class="pulse-orb">
+          <span class="orb-core"></span>
+          <span class="orb-ring"></span>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">GYMFLOW</span>
+          <span class="brand-tag">LIVING TELEMETRY</span>
+        </div>
+      </div>
+
+      <!-- Concentric Biometric Hub -->
+      <div class="living-streak-hub">
+        <div class="streak-flame-icon">🔥</div>
+        <div class="streak-data">
+          <span class="streak-count" id="c-streak">4-DAY STREAK</span>
+          <span class="streak-label">MOMENTUM PEAK</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Dynamic Canvas -->
+    <main class="living-grid">
+      <!-- Left Column: Living Protocols & Dynamic Exercises -->
+      <section class="living-main-column">
+        <!-- Living Mission Card with Triple Concentric Rings -->
+        <div class="living-hero-card">
+          <div class="hero-content">
+            <div class="hero-eyebrow">
+              <span class="pulse-dot"></span>
+              <span>LIVE PROTOCOL ACTIVE</span>
+            </div>
+            <h1 class="hero-workout-title" id="c-routine-title">Push Power Momentum</h1>
+            <p class="hero-routine-focus">CHEST • LATERAL DELTS • TRICEPS</p>
+
+            <div class="routine-quick-switch">
+              <button class="switch-pill active" data-routine="push">Push Power</button>
+              <button class="switch-pill" data-routine="pull">Pull Surge</button>
+              <button class="switch-pill" data-routine="legs">Leg Engine</button>
+            </div>
+          </div>
+
+          <!-- Triple Concentric Living SVG Ring -->
+          <div class="concentric-ring-stage">
+            <svg class="concentric-svg" width="140" height="140" viewBox="0 0 140 140">
+              <!-- Outer Ring: Workout Progress (r=58, c=364) -->
+              <circle cx="70" cy="70" r="58" class="ring-bg ring-outer" />
+              <circle cx="70" cy="70" r="58" class="ring-fill ring-workout" id="ring-workout" stroke-dasharray="364" stroke-dashoffset="182" />
+
+              <!-- Middle Ring: Hydration (r=46, c=289) -->
+              <circle cx="70" cy="70" r="46" class="ring-bg ring-middle" />
+              <circle cx="70" cy="70" r="46" class="ring-fill ring-water" id="ring-water" stroke-dasharray="289" stroke-dashoffset="115" />
+
+              <!-- Inner Ring: Daily Target (r=34, c=213) -->
+              <circle cx="70" cy="70" r="34" class="ring-bg ring-inner" />
+              <circle cx="70" cy="70" r="34" class="ring-fill ring-target" id="ring-target" stroke-dasharray="213" stroke-dashoffset="42" />
+            </svg>
+            <div class="concentric-center-label">
+              <span class="center-pct" id="c-total-pct">50%</span>
+              <span class="center-sub">FLOW</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Muscle Isolator Flow Bar -->
+        <div class="living-filter-bar">
+          <span class="filter-caption">TARGET ISOLATION:</span>
+          <div class="filter-chips-list">
+            <button class="living-filter-chip active" data-filter="all">All Muscles</button>
+            <button class="living-filter-chip" data-filter="chest">Chest</button>
+            <button class="living-filter-chip" data-filter="shoulders">Shoulders</button>
+            <button class="living-filter-chip" data-filter="arms">Arms</button>
+          </div>
+        </div>
+
+        <!-- Dynamic Living Exercise Stream -->
+        <div class="living-exercise-stream" id="c-exercise-list">
+          <!-- Card 1 -->
+          <article class="living-card completed" data-id="e1" data-cat="chest">
+            <div class="living-card-border-glow"></div>
+            <div class="living-card-body">
+              <div class="living-card-meta">
+                <span class="muscle-pill">Chest Compound</span>
+                <h3 class="living-exercise-name">Incline Dumbbell Press</h3>
+                <div class="living-specs-row">
+                  <span class="spec-pill">4 Sets</span>
+                  <span class="spec-bullet">•</span>
+                  <span class="spec-pill">8 - 10 Reps</span>
+                  <span class="spec-bullet">•</span>
+                  <span class="spec-pill">90s Rest</span>
+                </div>
+              </div>
+              <button class="living-completion-toggle completed" aria-label="Toggle Completion">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              </button>
+            </div>
+          </article>
+
+          <!-- Card 2 -->
+          <article class="living-card completed" data-id="e2" data-cat="chest">
+            <div class="living-card-border-glow"></div>
+            <div class="living-card-body">
+              <div class="living-card-meta">
+                <span class="muscle-pill">Chest Flye</span>
+                <h3 class="living-exercise-name">Cable Chest Crossover</h3>
+                <div class="living-specs-row">
+                  <span class="spec-pill">3 Sets</span>
+                  <span class="spec-bullet">•</span>
+                  <span class="spec-pill">12 Reps</span>
+                  <span class="spec-bullet">•</span>
+                  <span class="spec-pill">60s Rest</span>
+                </div>
+              </div>
+              <button class="living-completion-toggle completed" aria-label="Toggle Completion">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              </button>
+            </div>
+          </article>
+
+          <!-- Card 3 -->
+          <article class="living-card" data-id="e3" data-cat="shoulders">
+            <div class="living-card-border-glow"></div>
+            <div class="living-card-body">
+              <div class="living-card-meta">
+                <span class="muscle-pill">Shoulders</span>
+                <h3 class="living-exercise-name">Dumbbell Lateral Raises</h3>
+                <div class="living-specs-row">
+                  <span class="spec-pill">4 Sets</span>
+                  <span class="spec-bullet">•</span>
+                  <span class="spec-pill">12 - 15 Reps</span>
+                  <span class="spec-bullet">•</span>
+                  <span class="spec-pill">60s Rest</span>
+                </div>
+              </div>
+              <button class="living-completion-toggle" aria-label="Toggle Completion">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              </button>
+            </div>
+          </article>
+
+          <!-- Card 4 -->
+          <article class="living-card" data-id="e4" data-cat="arms">
+            <div class="living-card-border-glow"></div>
+            <div class="living-card-body">
+              <div class="living-card-meta">
+                <span class="muscle-pill">Triceps</span>
+                <h3 class="living-exercise-name">Skull Crushers (EZ Bar)</h3>
+                <div class="living-specs-row">
+                  <span class="spec-pill">3 Sets</span>
+                  <span class="spec-bullet">•</span>
+                  <span class="spec-pill">12 Reps</span>
+                  <span class="spec-bullet">•</span>
+                  <span class="spec-pill">60s Rest</span>
+                </div>
+              </div>
+              <button class="living-completion-toggle" aria-label="Toggle Completion">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              </button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- Right Column: Living Hydration Reservoir & Biometric Flow -->
+      <aside class="living-side-column">
+        <!-- Dynamic Fluid Hydration Tank -->
+        <div class="living-panel hydration-reservoir-card">
+          <div class="reservoir-header">
+            <div class="reservoir-title-group">
+              <span class="fluid-wave-icon">💧</span>
+              <h3 class="reservoir-title">FLUID RESERVOIR</h3>
+            </div>
+            <span class="reservoir-badge" id="c-water-pct">60%</span>
+          </div>
+
+          <div class="fluid-tank-visual">
+            <div class="fluid-water-level" id="c-fluid-level" style="height: 60%;">
+              <div class="fluid-wave"></div>
+            </div>
+            <div class="fluid-readout">
+              <span class="fluid-current" id="c-water-val">1,800</span>
+              <span class="fluid-target">/ 3,000 ML</span>
+            </div>
+          </div>
+
+          <!-- Interactive Fluid Controls -->
+          <div class="fluid-controls">
+            <button class="fluid-sip-btn" data-add="250">
+              <span>+250</span>
+              <small>SIP</small>
+            </button>
+            <button class="fluid-sip-btn" data-add="500">
+              <span>+500</span>
+              <small>GLASS</small>
+            </button>
+            <button class="fluid-sip-btn" data-add="750">
+              <span>+750</span>
+              <small>BOTTLE</small>
+            </button>
+          </div>
+        </div>
+
+        <!-- 7-Day Organic Rhythm -->
+        <div class="living-panel rhythm-card">
+          <div class="rhythm-header">
+            <h3 class="reservoir-title">BIOMECHANICAL RHYTHM</h3>
+            <span class="rhythm-metric text-lime">92% HARMONY</span>
+          </div>
+
+          <div class="rhythm-bars" id="c-rhythm-bars">
+            <div class="r-bar-slot">
+              <div class="r-bar-stem" style="height: 80%;"></div>
+              <span class="r-bar-day">THU</span>
+            </div>
+            <div class="r-bar-slot">
+              <div class="r-bar-stem" style="height: 65%;"></div>
+              <span class="r-bar-day">FRI</span>
+            </div>
+            <div class="r-bar-slot">
+              <div class="r-bar-stem" style="height: 90%;"></div>
+              <span class="r-bar-day">SAT</span>
+            </div>
+            <div class="r-bar-slot">
+              <div class="r-bar-stem rest" style="height: 20%;"></div>
+              <span class="r-bar-day">SUN</span>
+            </div>
+            <div class="r-bar-slot">
+              <div class="r-bar-stem" style="height: 100%;"></div>
+              <span class="r-bar-day">MON</span>
+            </div>
+            <div class="r-bar-slot">
+              <div class="r-bar-stem" style="height: 95%;"></div>
+              <span class="r-bar-day">TUE</span>
+            </div>
+            <div class="r-bar-slot active">
+              <div class="r-bar-stem active" id="c-today-stem" style="height: 50%;"></div>
+              <span class="r-bar-day">TODAY</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

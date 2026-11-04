@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GymFlow :: Prototype B — Athletic Intelligence</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="athletic-theme">
+  <!-- Top Athlete Performance Banner -->
+  <header class="athletic-header">
+    <div class="header-inner">
+      <div class="athlete-brand">
+        <div class="brand-glyph">GF⚡INTEL</div>
+        <div class="brand-divider"></div>
+        <div class="brand-sub">PRO ATHLETIC TELEMETRY</div>
+      </div>
+
+      <!-- Quick Metrics Strip -->
+      <div class="athlete-strip">
+        <div class="strip-item">
+          <span class="strip-label">ACUTE LOAD</span>
+          <span class="strip-value text-accent">1.18 <small>OPTIMAL</small></span>
+        </div>
+        <div class="strip-item">
+          <span class="strip-label">STREAK</span>
+          <span class="strip-value" id="b-streak">4 <small>DAYS</small></span>
+        </div>
+        <div class="strip-item">
+          <span class="strip-label">TOTAL VOLUME</span>
+          <span class="strip-value">14,250 <small>KG</small></span>
+        </div>
+        <div class="strip-item">
+          <span class="strip-label">RECOVERY INDEX</span>
+          <span class="strip-value text-cyan">94%</span>
+        </div>
+      </div>
+
+      <div class="athlete-session-status">
+        <span class="status-live-badge">SESSION LIVE</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Grid Frame -->
+  <main class="athletic-container">
+    <!-- Hero Performance Row -->
+    <section class="performance-hero">
+      <div class="hero-left">
+        <div class="kicker-tag">SESSION PROTOCOL // CYCLE 03</div>
+        <h1 class="hero-title" id="b-routine-title">HEAVY PUSH & DELT DRIVE</h1>
+        <div class="hero-category-chips">
+          <span class="cat-pill">CHEST</span>
+          <span class="cat-pill">SHOULDERS</span>
+          <span class="cat-pill">TRICEPS</span>
+          <span class="cat-duration">EST: 52 MIN</span>
+        </div>
+      </div>
+
+      <div class="hero-right">
+        <div class="hero-stat-block">
+          <div class="stat-big-num" id="b-completed-ratio">2 / 4</div>
+          <div class="stat-progress-bar-wrap">
+            <div class="stat-progress-bar-fill" id="b-progress-fill" style="width: 50%;"></div>
+          </div>
+          <div class="stat-sub-text" id="b-progress-pct">50% OF PLANNED WORKOUT COMPLETED</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Routine Selector & Filter Bar -->
+    <div class="control-row">
+      <div class="routine-picker-wrap">
+        <label class="control-label" for="b-routine-select">SELECT WORKOUT:</label>
+        <select id="b-routine-select" class="athletic-select">
+          <option value="push">Heavy Push & Delt Drive (Current)</option>
+          <option value="pull">Hypertrophy Pull & Posterior Chain</option>
+          <option value="legs">Leg Drive & Kinetic Power</option>
+        </select>
+      </div>
+
+      <div class="muscle-filter-bar">
+        <span class="control-label">FILTER MUSCLE:</span>
+        <div class="filter-group">
+          <button class="filter-btn active" data-filter="all">ALL</button>
+          <button class="filter-btn" data-filter="chest">CHEST</button>
+          <button class="filter-btn" data-filter="shoulders">SHOULDERS</button>
+          <button class="filter-btn" data-filter="arms">ARMS</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Athletic Layout -->
+    <div class="athletic-layout">
+      <!-- Left: Workout Cards -->
+      <section class="workout-stream-panel">
+        <div class="section-title-bar">
+          <h2 class="section-heading">TARGET WORKOUT EXECUTION</h2>
+          <span class="section-counter" id="b-counter-label">2 EXERCISES REMAINING</span>
+        </div>
+
+        <div class="athletic-cards" id="b-cards-container">
+          <!-- Card 1 -->
+          <div class="ath-card completed" data-id="e1" data-cat="chest">
+            <div class="ath-card-side-indicator"></div>
+            <div class="ath-card-content">
+              <div class="ath-card-top">
+                <span class="ath-cat-label">CHEST // COMPOUND</span>
+                <span class="ath-status-badge">LOGGED</span>
+              </div>
+              <h3 class="ath-exercise-name">Barbell Bench Press</h3>
+              <div class="ath-metrics-grid">
+                <div class="ath-m-box">
+                  <span class="m-lbl">SETS</span>
+                  <span class="m-val">4</span>
+                </div>
+                <div class="ath-m-box">
+                  <span class="m-lbl">REPS</span>
+                  <span class="m-val">8</span>
+                </div>
+                <div class="ath-m-box">
+                  <span class="m-lbl">TARGET WEIGHT</span>
+                  <span class="m-val">100 KG</span>
+                </div>
+                <div class="ath-m-box">
+                  <span class="m-lbl">REST INTERVAL</span>
+                  <span class="m-val">120 SEC</span>
+                </div>
+              </div>
+            </div>
+            <button class="ath-check-btn checked" aria-label="Toggle Complete">
+              <span class="check-mark">✓</span>
+            </button>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="ath-card completed" data-id="e2" data-cat="chest">
+            <div class="ath-card-side-indicator"></div>
+            <div class="ath-card-content">
+              <div class="ath-card-top">
+                <span class="ath-cat-label">CHEST // ISOLATION</span>
+                <span class="ath-status-badge">LOGGED</span>
+              </div>
+              <h3 class="ath-exercise-name">Incline Dumbbell Flyes</h3>
+              <div class="ath-metrics-grid">
+                <div class="ath-m-box">
+                  <span class="m-lbl">SETS</span>
+                  <span class="m-val">3</span>
+                </div>
+                <div class="ath-m-box">
+                  <span class="m-lbl">REPS</span>
+                  <span class="m-val">12</span>
+                </div>
+                <div class="ath-m-box">
+                  <span class="m-lbl">TARGET WEIGHT</span>
+                  <span class="m-val">22 KG</span>
+                </div>
+                <div class="ath-m-box">
+                  <span class="m-lbl">REST INTERVAL</span>
+                  <span class="m-val">60 SEC</span>
+                </div>
+              </div>
+            </div>
+            <button class="ath-check-btn checked" aria-label="Toggle Complete">
+              <span class="check-mark">✓</span>
+            </button>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="ath-card" data-id="e3" data-cat="shoulders">
+            <div class="ath-card-side-indicator"></div>
+            <div class="ath-card-content">
+              <div class="ath-card-top">
+                <span class="ath-cat-label">SHOULDERS // OVERHEAD</span>
+                <span class="ath-status-badge pending">PENDING</span>
+              </div>
+              <h3 class="ath-exercise-name">Standing Overhead Press</h3>
+              <div class="ath-metrics-grid">
+                <div class="ath-m-box">
+                  <span class="m-lbl">SETS</span>
+                  <span class="m-val">4</span>
+                </div>
+                <div class="ath-m-box">
+                  <span class="m-lbl">REPS</span>
+                  <span class="m-val">8 - 10</span>
+                </div>
+                <div class="ath-m-box">
+                  <span class="m-lbl">TARGET WEIGHT</span>
+                  <span class="m-val">55 KG</span>
+                </div>
+                <div class="ath-m-box">
+                  <span class="m-lbl">REST INTERVAL</span>
+                  <span class="m-val">90 SEC</span>
+                </div>
+              </div>
+            </div>
+            <button class="ath-check-btn" aria-label="Toggle Complete">
+              <span class="check-mark">✓</span>
+            </button>
+          </div>
+
+          <!-- Card 4 -->
+          <div class="ath-card" data-id="e4" data-cat="arms">
+            <div class="ath-card-side-indicator"></div>
+            <div class="ath-card-content">
+              <div class="ath-card-top">
+                <span class="ath-cat-label">ARMS // TRICEPS</span>
+                <span class="ath-status-badge pending">PENDING</span>
+              </div>
+              <h3 class="ath-exercise-name">Overhead Rope Extension</h3>
+              <div class="ath-metrics-grid">
+                <div class="ath-m-box">
+                  <span class="m-lbl">SETS</span>
+                  <span class="m-val">3</span>
+                </div>
+                <div class="ath-m-box">
+                  <span class="m-lbl">REPS</span>
+                  <span class="m-val">15</span>
+                </div>
+                <div class="ath-m-box">
+                  <span class="m-lbl">TARGET WEIGHT</span>
+                  <span class="m-val">32 KG</span>
+                </div>
+                <div class="ath-m-box">
+                  <span class="m-lbl">REST INTERVAL</span>
+                  <span class="m-val">45 SEC</span>
+                </div>
+              </div>
+            </div>
+            <button class="ath-check-btn" aria-label="Toggle Complete">
+              <span class="check-mark">✓</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right: Sports Telemetry Panels -->
+      <aside class="athletic-sidebar">
+        <!-- Hydration Telemetry -->
+        <div class="ath-panel hydration-panel">
+          <div class="ath-panel-header">
+            <span class="panel-tag">HYDRATION STATUS</span>
+            <span class="panel-val-large" id="b-water-pct">60%</span>
+          </div>
+          <div class="hydration-meter-block">
+            <div class="meter-labels">
+              <span class="meter-cur" id="b-water-text">1,800 ML</span>
+              <span class="meter-target">GOAL: 3,000 ML</span>
+            </div>
+            <div class="meter-bar">
+              <div class="meter-bar-fill" id="b-water-bar" style="width: 60%;"></div>
+            </div>
+          </div>
+          <div class="hydration-buttons">
+            <button class="ath-quick-btn" data-add="250">+250 ML</button>
+            <button class="ath-quick-btn" data-add="500">+500 ML</button>
+            <button class="ath-quick-btn" data-add="1000">+1000 ML</button>
+          </div>
+        </div>
+
+        <!-- Weekly Load Profile -->
+        <div class="ath-panel">
+          <div class="ath-panel-header">
+            <span class="panel-tag">7-DAY LOAD DISTRIBUTION</span>
+            <span class="panel-sub-tag">VOLUME ACCUMULATION</span>
+          </div>
+
+          <div class="load-bars">
+            <div class="l-col"><div class="l-bar" style="height: 85%;"></div><span class="l-day">THU</span></div>
+            <div class="l-col"><div class="l-bar" style="height: 60%;"></div><span class="l-day">FRI</span></div>
+            <div class="l-col"><div class="l-bar" style="height: 95%;"></div><span class="l-day">SAT</span></div>
+            <div class="l-col"><div class="l-bar rest" style="height: 15%;"></div><span class="l-day">SUN</span></div>
+            <div class="l-col"><div class="l-bar" style="height: 90%;"></div><span class="l-day">MON</span></div>
+            <div class="l-col"><div class="l-bar" style="height: 100%;"></div><span class="l-day">TUE</span></div>
+            <div class="l-col current"><div class="l-bar current" id="b-today-bar" style="height: 50%;"></div><span class="l-day">TODAY</span></div>
+          </div>
+
+          <div class="load-summary-grid">
+            <div class="l-metric">
+              <span class="l-name">COMPLETED DAYS</span>
+              <span class="l-val text-accent">5 / 7</span>
+            </div>
+            <div class="l-metric">
+              <span class="l-name">EFFICIENCY SCORE</span>
+              <span class="l-val">91.4%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sports Readiness -->
+        <div class="ath-panel">
+          <div class="ath-panel-header">
+            <span class="panel-tag">CNS READINESS</span>
+            <span class="readiness-pill ready">READY</span>
+          </div>
+          <p class="readiness-desc">Neuromuscular tone optimal for compound hypertrophy loading. Keep rest intervals strictly under 120s.</p>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

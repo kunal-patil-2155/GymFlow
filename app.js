@@ -14,9 +14,18 @@ const Storage = {
   load() {
     try {
       const raw = localStorage.getItem(this.KEY);
-      return raw ? JSON.parse(raw) : null;
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+        try { localStorage.setItem('gymflow_corrupted_backup', raw); } catch (_) {}
+        return null;
+      }
+      return parsed;
     } catch {
-      // corrupted storage — fall back to defaults
+      try {
+        const raw = localStorage.getItem(this.KEY);
+        if (raw) localStorage.setItem('gymflow_corrupted_backup', raw);
+      } catch (_) {}
       return null;
     }
   },
@@ -93,6 +102,17 @@ function makeSampleData() {
   };
 }
 
+function isValidState(s) {
+  if (!s || typeof s !== 'object' || Array.isArray(s)) return false;
+  if (!s.today || typeof s.today !== 'object' || Array.isArray(s.today)) return false;
+  if (typeof s.today.date !== 'string') return false;
+  if (!Array.isArray(s.today.completed)) return false;
+  if (!Array.isArray(s.today.water)) return false;
+  if (!Array.isArray(s.routines)) return false;
+  if (!s.goals || typeof s.goals !== 'object' || Array.isArray(s.goals)) return false;
+  return true;
+}
+
 /* ── STATE MODULE ────────────────────────────────────────────
    In-memory single source of truth; persists on every write.    */
 const State = {
@@ -101,8 +121,23 @@ const State = {
 
   init() {
     const saved = Storage.load();
-    this._data = saved || makeSampleData();
+    if (saved && !isValidState(saved)) {
+      try {
+        const raw = localStorage.getItem(Storage.KEY);
+        if (raw) localStorage.setItem('gymflow_corrupted_backup', raw);
+      } catch (_) {}
+      this._data = makeSampleData();
+    } else {
+      this._data = (saved && isValidState(saved)) ? saved : makeSampleData();
+    }
     if (!Array.isArray(this._data.history)) this._data.history = [];
+    if (!Array.isArray(this._data.routines)) this._data.routines = [];
+    if (!this._data.goals || typeof this._data.goals !== 'object') {
+      this._data.goals = { workouts: 1, exercises: 8, water: 2000 };
+    }
+    if (typeof this._data.goals.workouts !== 'number' || this._data.goals.workouts < 1) this._data.goals.workouts = 1;
+    if (typeof this._data.goals.exercises !== 'number' || this._data.goals.exercises < 1) this._data.goals.exercises = 8;
+    if (typeof this._data.goals.water !== 'number' || this._data.goals.water < 100) this._data.goals.water = 2000;
     const today = todayKey();
 
     // Migrate today's date if day changed (calendar-day transition)
@@ -471,10 +506,12 @@ function renderDashboard() {
   setText('stat-water', waterTotal + ' ml');
   setText('stat-water-goal', 'Goal: ' + s.goals.water + ' ml');
 
-  // Goal progress (composite: exercise + water)
-  const goalExPct  = total ? clamp(done / (s.goals.exercises || 1), 0, 1) : 0;
-  const goalWatPct = clamp(waterTotal / Math.max(1, s.goals.water), 0, 1);
-  const goalPct    = Math.round(((goalExPct + goalWatPct) / 2) * 100);
+  // Goal progress (composite of target goals: target exercises + target water)
+  const targetExercises = Math.max(1, Number(s.goals?.exercises) || 8);
+  const targetWater     = Math.max(1, Number(s.goals?.water) || 2000);
+  const goalExPct       = clamp(done / targetExercises, 0, 1);
+  const goalWatPct      = clamp(waterTotal / targetWater, 0, 1);
+  const goalPct         = Math.round(((goalExPct + goalWatPct) / 2) * 100);
   setText('stat-goal-pct', goalPct + '%');
   setWidth('progress-goal', goalPct);
 
@@ -710,7 +747,10 @@ function renderRoutines() {
 /* ── ROUTINE MODAL ───────────────────────────────────────────*/
 let _editingRoutineId = null;
 
+let _lastFocusedElement = null;
+
 function openRoutineModal(routineId = null) {
+  _lastFocusedElement = document.activeElement;
   _editingRoutineId = routineId;
   const modal = document.getElementById('modal-routine');
   const title = document.getElementById('modal-routine-title');
@@ -744,6 +784,10 @@ function closeRoutineModal() {
   const modal = document.getElementById('modal-routine');
   if (modal) modal.hidden = true;
   _editingRoutineId = null;
+  if (_lastFocusedElement && typeof _lastFocusedElement.focus === 'function') {
+    _lastFocusedElement.focus();
+    _lastFocusedElement = null;
+  }
 }
 
 function addExerciseField(ex = {}) {
@@ -915,6 +959,7 @@ function initRoutineModal() {
 let _routineToDelete = null;
 
 function openDeleteRoutineModal(routine) {
+  _lastFocusedElement = document.activeElement;
   _routineToDelete = routine;
   const modal = document.getElementById('modal-delete-routine');
   if (!modal) return;
@@ -927,6 +972,10 @@ function closeDeleteRoutineModal() {
   const modal = document.getElementById('modal-delete-routine');
   if (modal) modal.hidden = true;
   _routineToDelete = null;
+  if (_lastFocusedElement && typeof _lastFocusedElement.focus === 'function') {
+    _lastFocusedElement.focus();
+    _lastFocusedElement = null;
+  }
 }
 
 function initDeleteRoutineModal() {
@@ -1461,7 +1510,14 @@ function renderMonthlyHeatmap(s) {
     // Hover tooltip handlers
     if (tooltip) {
       const showTip = () => {
-        tooltip.innerHTML = `<strong>${formatDate(dateKey)}${isToday ? ' (Today)' : ''}</strong><br/>Exercises: ${completed}/${total}<br/>Hydration: ${info.water || 0} ml`;
+        while (tooltip.firstChild) tooltip.removeChild(tooltip.firstChild);
+        const headerEl = document.createElement('strong');
+        headerEl.textContent = `${formatDate(dateKey)}${isToday ? ' (Today)' : ''}`;
+        tooltip.appendChild(headerEl);
+        tooltip.appendChild(document.createElement('br'));
+        tooltip.appendChild(document.createTextNode(`Exercises: ${completed}/${total}`));
+        tooltip.appendChild(document.createElement('br'));
+        tooltip.appendChild(document.createTextNode(`Hydration: ${Number(info.water) || 0} ml`));
         tooltip.hidden = false;
         const rect = cell.getBoundingClientRect();
         const parentRect = container.getBoundingClientRect();
@@ -1718,9 +1774,13 @@ function renderGoals() {
   const exDone   = s.today.completed.length;
   const waterMl  = s.today.water.reduce((sum, e) => sum + e.ml, 0);
 
+  const workoutsGoal = Math.max(1, Number(s.goals?.workouts) || 1);
+  const workoutsDone = (exTotal > 0 && exDone >= exTotal) ? 1 : 0;
+
   [
-    { label: 'Exercises completed', current: exDone,  goal: s.goals.exercises, unit: 'exercises' },
-    { label: 'Water intake',        current: waterMl, goal: s.goals.water,     unit: 'ml' },
+    { label: 'Workouts completed',  current: workoutsDone, goal: workoutsGoal,      unit: workoutsGoal === 1 ? 'workout' : 'workouts' },
+    { label: 'Exercises completed', current: exDone,       goal: s.goals.exercises, unit: 'exercises' },
+    { label: 'Water intake',        current: waterMl,      goal: s.goals.water,     unit: 'ml' },
   ].forEach(item => {
     const pct = Math.round(clamp(item.current / Math.max(1, item.goal), 0, 1) * 100);
     const wrapper = document.createElement('div');
@@ -1794,10 +1854,15 @@ function initGoals() {
 function closeResetModal() {
   const modal = document.getElementById('modal-reset');
   if (modal) modal.hidden = true;
+  if (_lastFocusedElement && typeof _lastFocusedElement.focus === 'function') {
+    _lastFocusedElement.focus();
+    _lastFocusedElement = null;
+  }
 }
 
 function initReset() {
   document.getElementById('btn-reset')?.addEventListener('click', () => {
+    _lastFocusedElement = document.activeElement;
     document.getElementById('modal-reset').hidden = false;
     document.getElementById('btn-cancel-reset').focus();
   });
@@ -1854,14 +1919,14 @@ function validateImportData(data) {
   }
   for (let i = 0; i < data.routines.length; i++) {
     const r = data.routines[i];
-    if (!r || typeof r.name !== 'string' || !r.name.trim()) {
+    if (!r || typeof r !== 'object' || typeof r.name !== 'string' || !r.name.trim()) {
       return { valid: false, error: `Routine #${i + 1} is missing a valid name.` };
     }
     if (!Array.isArray(r.exercises)) {
       return { valid: false, error: `Routine "${r.name}" is missing an exercises array.` };
     }
   }
-  if (!data.goals || typeof data.goals !== 'object') {
+  if (!data.goals || typeof data.goals !== 'object' || Array.isArray(data.goals)) {
     return { valid: false, error: 'Backup is missing required "goals" configuration.' };
   }
   const g = data.goals;
@@ -1873,20 +1938,25 @@ function validateImportData(data) {
 
   // Sanitized structure
   const today = todayKey();
+  const allowedCategories = ['chest', 'back', 'legs', 'shoulders', 'arms', 'cardio', 'core', 'full body'];
   const sanitized = {
     _isSampleData: false,
     routines: data.routines.map(r => ({
-      id: r.id || uid(),
+      id: (typeof r.id === 'string' && r.id.trim()) ? r.id.trim() : uid(),
       name: String(r.name).trim().slice(0, 60),
-      category: ['chest', 'back', 'legs', 'shoulders', 'arms', 'cardio'].includes(r.category) ? r.category : 'chest',
-      exercises: r.exercises.map(e => ({
-        id: e.id || uid(),
-        name: String(e.name).trim().slice(0, 60),
-        sets: Math.max(0, parseInt(e.sets, 10) || 0),
-        reps: Math.max(0, parseInt(e.reps, 10) || 0),
-        duration: Math.max(0, parseInt(e.duration, 10) || 0),
-        rest: Math.max(0, parseInt(e.rest, 10) || 0)
-      }))
+      category: (typeof r.category === 'string' && allowedCategories.includes(r.category.toLowerCase()))
+        ? r.category.toLowerCase()
+        : 'chest',
+      exercises: (Array.isArray(r.exercises) ? r.exercises : [])
+        .filter(e => e && typeof e === 'object')
+        .map(e => ({
+          id: (typeof e.id === 'string' && e.id.trim()) ? e.id.trim() : uid(),
+          name: (typeof e.name === 'string' && e.name.trim()) ? e.name.trim().slice(0, 60) : 'Exercise',
+          sets: Math.min(50, Math.max(0, parseInt(e.sets, 10) || 0)),
+          reps: Math.min(500, Math.max(0, parseInt(e.reps, 10) || 0)),
+          duration: Math.min(86400, Math.max(0, parseInt(e.duration, 10) || 0)),
+          rest: Math.min(3600, Math.max(0, parseInt(e.rest, 10) || 0))
+        }))
     })),
     goals: {
       workouts: Math.min(10, Math.max(1, parseInt(g.workouts, 10) || 1)),
@@ -1895,18 +1965,48 @@ function validateImportData(data) {
     },
     today: {
       date: today,
-      routineId: data.today && data.routines.some(r => r.id === data.today.routineId)
+      routineId: data.today && data.routines.some(r => r && r.id === data.today.routineId)
         ? data.today.routineId
         : data.routines[0].id,
       completed: (data.today && data.today.date === today && Array.isArray(data.today.completed))
-        ? data.today.completed
+        ? data.today.completed.filter(id => typeof id === 'string')
         : [],
       water: (data.today && data.today.date === today && Array.isArray(data.today.water))
         ? data.today.water
+            .filter(w => w && typeof w === 'object')
+            .map(w => ({
+              id: (typeof w.id === 'string' && w.id.trim()) ? w.id.trim() : uid(),
+              time: typeof w.time === 'string' ? w.time.slice(0, 10) : '12:00',
+              ml: Math.min(10000, Math.max(0, parseInt(w.ml, 10) || 0))
+            }))
         : []
     },
-    weekly: Array.isArray(data.weekly) ? data.weekly : buildEmptyWeek(),
-    history: Array.isArray(data.history) ? data.history : []
+    weekly: Array.isArray(data.weekly)
+      ? data.weekly
+          .filter(w => w && typeof w === 'object')
+          .map(w => ({
+            date: typeof w.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(w.date) ? w.date : todayKey(),
+            day: typeof w.day === 'string' ? w.day.slice(0, 4) : 'Day',
+            completed: Math.min(500, Math.max(0, parseInt(w.completed, 10) || 0)),
+            total: Math.min(500, Math.max(0, parseInt(w.total, 10) || 0)),
+            water: Math.min(20000, Math.max(0, parseInt(w.water, 10) || 0))
+          }))
+      : buildEmptyWeek(),
+    history: Array.isArray(data.history)
+      ? data.history
+          .filter(h => h && typeof h === 'object')
+          .map(h => {
+            const dateStr = typeof h.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(h.date) ? h.date : '';
+            if (!dateStr) return null;
+            return {
+              date: dateStr,
+              completed: Math.min(500, Math.max(0, parseInt(h.completed, 10) || 0)),
+              total: Math.min(500, Math.max(0, parseInt(h.total, 10) || 0)),
+              water: Math.min(20000, Math.max(0, parseInt(h.water, 10) || 0))
+            };
+          })
+          .filter(Boolean)
+      : []
   };
 
   return { valid: true, sanitized };
@@ -1922,14 +2022,32 @@ function showDataFeedback(msg, type = 'success') {
 }
 
 function handleImportFile(file) {
-  if (!file) return;
+  const fileInput = document.getElementById('file-import-data');
+  if (!file) {
+    if (fileInput) fileInput.value = '';
+    return;
+  }
+
+  // 2MB size limit
+  const MAX_FILE_SIZE = 2 * 1024 * 1024;
+  if (file.size > MAX_FILE_SIZE) {
+    showDataFeedback('File exceeds maximum allowed size (2 MB). Please select a valid backup file.', 'error');
+    if (fileInput) fileInput.value = '';
+    return;
+  }
+
   const reader = new FileReader();
+  reader.onerror = () => {
+    showDataFeedback('Could not read the selected file.', 'error');
+    if (fileInput) fileInput.value = '';
+  };
   reader.onload = e => {
     try {
       const parsed = JSON.parse(e.target.result);
       const validation = validateImportData(parsed);
       if (!validation.valid) {
         showDataFeedback(`Import error: ${validation.error}`, 'error');
+        if (fileInput) fileInput.value = '';
         return;
       }
 
@@ -1940,9 +2058,11 @@ function handleImportFile(file) {
       });
 
       showDataFeedback(`Successfully imported ${validation.sanitized.routines.length} routines and personal data!`, 'success');
+      if (fileInput) fileInput.value = '';
       navigate('dashboard');
     } catch (err) {
       showDataFeedback('Could not parse file as JSON. Please upload a valid GymFlow backup file.', 'error');
+      if (fileInput) fileInput.value = '';
     }
   };
   reader.readAsText(file);
@@ -1972,20 +2092,33 @@ function initDataManagement() {
 
 /* ── FOCUS TRAP (modals) ─────────────────────────────────────*/
 function trapFocus(modal) {
-  const focusable = modal.querySelectorAll(
-    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-  );
-  if (!focusable.length) return;
-  const first = focusable[0];
-  const last  = focusable[focusable.length - 1];
-
-  modal.addEventListener('keydown', function handler(e) {
+  modal.addEventListener('keydown', e => {
     if (e.key !== 'Tab') return;
-    if (modal.hidden) { modal.removeEventListener('keydown', handler); return; }
+    if (modal.hidden) return;
+
+    // Dynamically query focusable elements inside the modal so newly added rows are included
+    const focusable = Array.from(modal.querySelectorAll(
+      'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    )).filter(el => el.offsetParent !== null || el.offsetWidth > 0 || el.offsetHeight > 0);
+
+    if (!focusable.length) {
+      e.preventDefault();
+      return;
+    }
+
+    const first = focusable[0];
+    const last  = focusable[focusable.length - 1];
+
     if (e.shiftKey) {
-      if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+      if (document.activeElement === first || !modal.contains(document.activeElement)) {
+        e.preventDefault();
+        last.focus();
+      }
     } else {
-      if (document.activeElement === last)  { e.preventDefault(); first.focus(); }
+      if (document.activeElement === last || !modal.contains(document.activeElement)) {
+        e.preventDefault();
+        first.focus();
+      }
     }
   });
 }
@@ -2029,10 +2162,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 if (typeof window !== 'undefined') {
   window.__app = {
-    Storage, State, toLocalDateKey, todayKey, parseLocalDate, formatDate,
+    Storage, State, isValidState, toLocalDateKey, todayKey, parseLocalDate, formatDate,
     buildEmptyWeek, syncTodayWeekly, ensureWeeklyRolling, archiveDayToHistory,
     calculateStreak, validateImportData, exportBackupData, handleImportFile,
     formatExerciseMeta, formatExerciseCompact, makeSampleData,
-    animateNumber, renderMonthlyHeatmap, renderMuscleAnalytics
+    animateNumber, renderMonthlyHeatmap, renderMuscleAnalytics, trapFocus
   };
 }

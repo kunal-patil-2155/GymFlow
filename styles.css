@@ -1881,7 +1881,7 @@ input, select, textarea { font: inherit; }
 /* Biomechanical Distribution & Symmetry Analytics */
 .muscle-analytics-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
   gap: var(--space-6);
   margin-top: var(--space-4);
 }
@@ -2077,6 +2077,37 @@ input, select, textarea { font: inherit; }
   }
   .concentric-ring-wrapper {
     align-self: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: var(--space-4);
+  }
+  .muscle-analytics-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+}
+
+@media (max-width: 360px) {
+  .main-content {
+    padding-left: var(--space-2);
+    padding-right: var(--space-2);
+  }
+  .card {
+    padding: var(--space-3);
+  }
+  .analytics-subcard {
+    padding: var(--space-3);
+  }
+  .heatmap-grid {
+    min-width: 220px;
+    gap: 4px;
+  }
+  .donut-chart-wrapper {
+    width: 140px;
+    height: 140px;
   }
 }
 

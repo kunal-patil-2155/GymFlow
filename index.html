@@ -189,20 +189,20 @@
         <div class="stat-value" id="stat-workout-name">–</div>
         <div class="stat-sub" id="stat-workout-category">–</div>
       </div>
-      <div class="stat-card" role="listitem">
-        <div class="stat-label">Exercises</div>
+      <div class="stat-card" role="listitem" aria-label="Today's routine exercises completed">
+        <div class="stat-label">Exercises Done</div>
         <div class="stat-value" id="stat-exercises-done">0 / 0</div>
         <div class="progress-bar-track" aria-hidden="true">
           <div class="progress-bar-fill" id="progress-exercises" style="width:0%"></div>
         </div>
       </div>
-      <div class="stat-card" role="listitem">
+      <div class="stat-card" role="listitem" aria-label="Today's water intake">
         <div class="stat-label">Water Today</div>
         <div class="stat-value" id="stat-water">0 ml</div>
         <div class="stat-sub" id="stat-water-goal">Goal: 2000 ml</div>
       </div>
-      <div class="stat-card" role="listitem">
-        <div class="stat-label">Daily Goal</div>
+      <div class="stat-card" role="listitem" aria-label="Daily Goal Targets: composite progress of configured daily target exercises and water">
+        <div class="stat-label">Daily Goal Targets</div>
         <div class="stat-value" id="stat-goal-pct">0%</div>
         <div class="progress-bar-track" aria-hidden="true">
           <div class="progress-bar-fill" id="progress-goal" style="width:0%"></div>
@@ -221,7 +221,7 @@
     </div>
 
     <!-- Concentric Biometric Flow HUD Card -->
-    <div class="card concentric-flow-card" id="card-concentric-flow">
+    <div class="card concentric-flow-card" id="card-concentric-flow" aria-label="Today's Routine and Hydration Flow HUD">
       <div class="concentric-flow-layout">
         <div class="concentric-ring-wrapper" aria-hidden="true">
           <svg class="concentric-progress-svg" width="120" height="120" viewBox="0 0 120 120">
@@ -240,9 +240,9 @@
         <div class="concentric-flow-meta">
           <div class="flow-meta-top">
             <span class="meta-live-dot" aria-hidden="true"></span>
-            <span class="flow-kicker">ATHLETIC BIOMETRIC TELEMETRY</span>
+            <span class="flow-kicker">ATHLETIC BIOMETRIC TELEMETRY · ROUTINE COMPLETION</span>
           </div>
-          <h3 class="flow-headline">Today's Performance Target</h3>
+          <h3 class="flow-headline">Today's Routine &amp; Hydration Flow</h3>
           <div class="flow-indicators">
             <div class="flow-pill flow-pill-exercises">
               <span class="pill-dot lime"></span>

@@ -210,6 +210,60 @@
       </div>
     </div>
 
+    <!-- Milestone Celebration Banner (Shows when daily goal is reached) -->
+    <div id="milestone-banner" class="milestone-banner" role="status" aria-live="polite" hidden>
+      <div class="milestone-icon" aria-hidden="true">🔥</div>
+      <div class="milestone-text">
+        <span class="milestone-title">DAILY MISSION COMPLETE</span>
+        <span class="milestone-subtitle">100% of today's target exercise volume &amp; hydration accomplished!</span>
+      </div>
+      <button type="button" class="milestone-close" id="btn-milestone-close" aria-label="Dismiss celebration">✕</button>
+    </div>
+
+    <!-- Concentric Biometric Flow HUD Card -->
+    <div class="card concentric-flow-card" id="card-concentric-flow">
+      <div class="concentric-flow-layout">
+        <div class="concentric-ring-wrapper" aria-hidden="true">
+          <svg class="concentric-progress-svg" width="120" height="120" viewBox="0 0 120 120">
+            <!-- Outer Ring: Exercises (r=48, circumference=301.6) -->
+            <circle cx="60" cy="60" r="48" class="concentric-track" />
+            <circle cx="60" cy="60" r="48" class="concentric-fill concentric-fill-exercises" id="ring-exercises-fill" stroke-dasharray="302" stroke-dashoffset="302" />
+            <!-- Inner Ring: Hydration (r=36, circumference=226.2) -->
+            <circle cx="60" cy="60" r="36" class="concentric-track" />
+            <circle cx="60" cy="60" r="36" class="concentric-fill concentric-fill-water" id="ring-water-fill" stroke-dasharray="226" stroke-dashoffset="226" />
+          </svg>
+          <div class="concentric-center-stat">
+            <span class="concentric-pct-val" id="concentric-pct-display">0%</span>
+            <span class="concentric-pct-sub">FLOW</span>
+          </div>
+        </div>
+        <div class="concentric-flow-meta">
+          <div class="flow-meta-top">
+            <span class="meta-live-dot" aria-hidden="true"></span>
+            <span class="flow-kicker">ATHLETIC BIOMETRIC TELEMETRY</span>
+          </div>
+          <h3 class="flow-headline">Today's Performance Target</h3>
+          <div class="flow-indicators">
+            <div class="flow-pill flow-pill-exercises">
+              <span class="pill-dot lime"></span>
+              <span class="pill-name">Exercises:</span>
+              <span class="pill-stat" id="flow-stat-exercises">0 / 0</span>
+            </div>
+            <div class="flow-pill flow-pill-water">
+              <span class="pill-dot cyan"></span>
+              <span class="pill-name">Hydration:</span>
+              <span class="pill-stat" id="flow-stat-water">0 / 2,000 ml</span>
+            </div>
+            <div class="flow-pill flow-pill-streak">
+              <span class="pill-dot amber"></span>
+              <span class="pill-name">Consistency:</span>
+              <span class="pill-stat text-warning" id="flow-stat-streak">Active Lock</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Today's routine summary -->
     <div class="card" id="dashboard-routine-card">
       <div class="card-header">
@@ -276,6 +330,11 @@
     </header>
 
     <div class="card water-goal-card">
+      <div class="fluid-wave-reservoir" id="water-fluid-reservoir" aria-hidden="true">
+        <div class="fluid-wave-fill" id="water-fluid-fill" style="height: 0%;">
+          <div class="fluid-wave-ripple"></div>
+        </div>
+      </div>
       <div class="water-goal-display" aria-live="polite" aria-label="Water intake progress">
         <div class="water-big-num" id="water-total-display">0</div>
         <div class="water-unit">ml</div>
@@ -351,6 +410,64 @@
     <div class="card">
       <h2 class="card-title">This Week at a Glance</h2>
       <div class="weekly-stats-grid" id="weekly-stats-grid" role="list" aria-label="Weekly statistics"></div>
+    </div>
+
+    <!-- 28-Day Monthly Activity Heatmap -->
+    <div class="card" id="card-monthly-heatmap">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">28-Day Consistency Matrix</h2>
+          <p class="card-subtitle">Calendar heatmap reflecting daily training density and completion history.</p>
+        </div>
+        <div class="heatmap-legend" aria-hidden="true">
+          <span class="legend-cell level-0"></span><span class="legend-text">Rest</span>
+          <span class="legend-cell level-1"></span><span class="legend-text">Partial</span>
+          <span class="legend-cell level-2"></span><span class="legend-text">Full</span>
+        </div>
+      </div>
+      <div class="heatmap-container" id="monthly-heatmap-container" role="region" aria-label="28-day activity heatmap">
+        <div class="heatmap-grid" id="monthly-activity-heatmap"></div>
+      </div>
+      <div class="heatmap-tooltip" id="heatmap-tooltip" role="tooltip" aria-hidden="true" hidden></div>
+    </div>
+
+    <!-- Muscle Group Volume Distribution & Performance Symmetry Radar -->
+    <div class="card" id="card-muscle-analytics">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">Biomechanical Distribution &amp; Symmetry</h2>
+          <p class="card-subtitle">Volume distribution across muscle groups and structural balance analysis based on current routines.</p>
+        </div>
+      </div>
+      <div class="muscle-analytics-grid">
+        <!-- Donut Chart -->
+        <div class="analytics-subcard">
+          <h3 class="analytics-subheading">Muscle Group Share</h3>
+          <div class="donut-chart-wrapper">
+            <svg id="chart-muscle-donut" class="donut-svg" viewBox="0 0 200 200" role="img" aria-label="Muscle group distribution donut chart">
+              <title>Muscle Group Distribution</title>
+            </svg>
+            <div class="donut-center-info" id="donut-center-info">
+              <span class="donut-total-count" id="donut-total-exercises">0</span>
+              <span class="donut-total-label">EXERCISES</span>
+            </div>
+          </div>
+          <div class="donut-legend" id="donut-legend" role="list" aria-label="Muscle group legend"></div>
+        </div>
+        <!-- Radar Chart -->
+        <div class="analytics-subcard">
+          <h3 class="analytics-subheading">Performance Symmetry Radar</h3>
+          <div class="radar-chart-wrapper">
+            <svg id="chart-muscle-radar" class="radar-svg" viewBox="0 0 240 220" role="img" aria-label="Muscle balance radar chart">
+              <title>Performance Symmetry Radar</title>
+            </svg>
+          </div>
+          <div class="radar-metric-footer">
+            <span class="radar-metric-label">STRUCTURAL BALANCE:</span>
+            <span class="radar-metric-val" id="radar-balance-score">OPTIMAL</span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="card" id="card-workout-history">

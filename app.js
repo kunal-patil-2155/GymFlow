@@ -305,6 +305,57 @@ function setWidth(id, pct) {
   if (node) node.style.width = clamp(pct, 0, 100) + '%';
 }
 
+/**
+ * Smooth numeric counter animation with prefers-reduced-motion compliance.
+ * @param {HTMLElement|string} targetEl Element or element ID
+ * @param {number} target Final numeric value
+ * @param {number} [duration=400] Animation duration in ms
+ * @param {Function} [formatFn] Formatting function
+ */
+function animateNumber(targetEl, target, duration = 400, formatFn = Math.round) {
+  const el = typeof targetEl === 'string' ? document.getElementById(targetEl) : targetEl;
+  if (!el) return;
+
+  const reducedMotion = typeof window !== 'undefined' &&
+    window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (reducedMotion || duration <= 0) {
+    el.textContent = formatFn(target);
+    return;
+  }
+
+  const currentText = (el.textContent || '').replace(/[^0-9.-]/g, '');
+  const start = parseFloat(currentText) || 0;
+  if (Math.round(start) === Math.round(target)) {
+    el.textContent = formatFn(target);
+    return;
+  }
+
+  const startTime = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+  function step(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(1, elapsed / duration);
+    const easeOut = 1 - (1 - progress) * (1 - progress);
+    const current = start + (target - start) * easeOut;
+    el.textContent = formatFn(current);
+    if (progress < 1) {
+      if (typeof requestAnimationFrame !== 'undefined') {
+        requestAnimationFrame(step);
+      } else {
+        el.textContent = formatFn(target);
+      }
+    } else {
+      el.textContent = formatFn(target);
+    }
+  }
+  if (typeof requestAnimationFrame !== 'undefined') {
+    requestAnimationFrame(step);
+  } else {
+    el.textContent = formatFn(target);
+  }
+}
+
 function showError(id, msg) {
   const node = document.getElementById(id);
   if (!node) return;
@@ -328,7 +379,17 @@ function navigate(view) {
 
   VIEWS.forEach(v => {
     const section = document.getElementById('view-' + v);
-    if (section) section.hidden = v !== view;
+    if (section) {
+      const isActive = v === view;
+      section.hidden = !isActive;
+      if (isActive) {
+        section.classList.remove('fade-in');
+        if (typeof section.offsetWidth !== 'undefined') {
+          void section.offsetWidth; // trigger reflow for smooth animation
+        }
+        section.classList.add('fade-in');
+      }
+    }
   });
 
   // Update nav links
@@ -416,6 +477,45 @@ function renderDashboard() {
   const goalPct    = Math.round(((goalExPct + goalWatPct) / 2) * 100);
   setText('stat-goal-pct', goalPct + '%');
   setWidth('progress-goal', goalPct);
+
+  // Concentric Biometric Flow HUD
+  const watGoalVal = Math.max(1, s.goals.water || 2000);
+  const watPct = clamp(Math.round((waterTotal / watGoalVal) * 100), 0, 100);
+  const flowPct = Math.round((exPct + watPct) / 2);
+
+  const ringEx = document.getElementById('ring-exercises-fill');
+  if (ringEx) {
+    const offset = Math.round(302 - (clamp(exPct, 0, 100) / 100) * 302);
+    ringEx.style.strokeDashoffset = offset;
+    ringEx.classList.toggle('complete', exPct >= 100);
+  }
+  const ringWat = document.getElementById('ring-water-fill');
+  if (ringWat) {
+    const offset = Math.round(226 - (clamp(watPct, 0, 100) / 100) * 226);
+    ringWat.style.strokeDashoffset = offset;
+    ringWat.classList.toggle('complete', watPct >= 100);
+  }
+
+  animateNumber('concentric-pct-display', flowPct, 350, n => Math.round(n) + '%');
+
+  setText('flow-stat-exercises', `${done} / ${total}`);
+  setText('flow-stat-water', `${waterTotal.toLocaleString()} / ${watGoalVal.toLocaleString()} ml`);
+  const streakDays = calculateStreak(s.weekly || [], s.history || []);
+  setText('flow-stat-streak', streakDays > 0 ? `${streakDays} Day${streakDays === 1 ? '' : 's'} Active` : 'Active Lock');
+
+  // Milestone Celebration Banner
+  const milestoneBanner = document.getElementById('milestone-banner');
+  if (milestoneBanner) {
+    const dismissedKey = 'gymflow_milestone_dismissed_' + todayKey();
+    let isDismissed = false;
+    try {
+      isDismissed = typeof sessionStorage !== 'undefined' && sessionStorage.getItem(dismissedKey) === '1';
+    } catch (e) {
+      isDismissed = false;
+    }
+    const isMilestone = total > 0 && exPct >= 100 && watPct >= 100;
+    milestoneBanner.hidden = !(isMilestone && !isDismissed);
+  }
 
   // Exercise list (today's routine)
   const listEl   = document.getElementById('dashboard-exercise-list');
@@ -876,6 +976,12 @@ function renderWater() {
   const bar = document.getElementById('water-progress-bar');
   if (bar) bar.classList.toggle('complete', pct >= 100);
 
+  // Dynamic fluid wave reservoir
+  const fluidFill = document.getElementById('water-fluid-fill');
+  if (fluidFill) {
+    fluidFill.style.height = `${pct}%`;
+  }
+
   // Goal input
   const goalInput = document.getElementById('water-goal-input');
   if (goalInput && goalInput !== document.activeElement) goalInput.value = goal;
@@ -1064,12 +1170,16 @@ function renderWeekly() {
   const tableBody = document.getElementById('weekly-chart-table-body');
   if (tableBody) tableBody.innerHTML = '';
 
+  const trendPoints = [];
+
   week.forEach((day, i) => {
     const pct = day.total ? clamp(day.completed / day.total, 0, 1) : 0;
     const barH = Math.max(pct > 0 ? 4 : 0, Math.round(pct * chartH));
     const x    = padL + i * barGap + (barGap - barW) / 2;
     const y    = padT + chartH - barH;
     const isToday = day.date === todayKey();
+
+    trendPoints.push({ x: x + barW / 2, y, pct });
 
     // Empty bar track
     const track = document.createElementNS(svgNS, 'rect');
@@ -1082,6 +1192,7 @@ function renderWeekly() {
     // Filled bar
     if (barH > 0) {
       const bar = document.createElementNS(svgNS, 'rect');
+      bar.setAttribute('class', 'weekly-bar-rect');
       bar.setAttribute('x', x); bar.setAttribute('y', y);
       bar.setAttribute('width', barW); bar.setAttribute('height', barH);
       bar.setAttribute('rx', '6');
@@ -1128,6 +1239,26 @@ function renderWeekly() {
       tableBody.appendChild(tr);
     }
   });
+
+  // 7-day trend polyline
+  if (trendPoints.length > 1) {
+    const pointsAttr = trendPoints.map(p => `${p.x},${p.y}`).join(' ');
+    const polyline = document.createElementNS(svgNS, 'polyline');
+    polyline.setAttribute('class', 'weekly-trend-line');
+    polyline.setAttribute('points', pointsAttr);
+    svgEl.appendChild(polyline);
+
+    trendPoints.forEach(p => {
+      const circle = document.createElementNS(svgNS, 'circle');
+      circle.setAttribute('cx', p.x);
+      circle.setAttribute('cy', p.y);
+      circle.setAttribute('r', '3.5');
+      circle.setAttribute('fill', p.pct === 1 ? 'var(--color-accent)' : 'var(--color-secondary)');
+      circle.setAttribute('stroke', '#06080c');
+      circle.setAttribute('stroke-width', '1.5');
+      svgEl.appendChild(circle);
+    });
+  }
 
   // Weekly stats
   const statsGrid = document.getElementById('weekly-stats-grid');
@@ -1249,6 +1380,319 @@ function renderWeekly() {
       item.appendChild(stats);
       historyList.appendChild(item);
     });
+  }
+
+  // Render monthly heatmap & biomechanical distribution charts
+  renderMonthlyHeatmap(s);
+  renderMuscleAnalytics(s);
+}
+
+/* ── 28-DAY MONTHLY HEATMAP RENDER ───────────────────────────*/
+function renderMonthlyHeatmap(s) {
+  const container = document.getElementById('monthly-activity-heatmap');
+  const tooltip = document.getElementById('heatmap-tooltip');
+  if (!container) return;
+
+  container.innerHTML = '';
+
+  // Prepare map of historical data
+  const dataMap = new Map();
+  if (Array.isArray(s.history)) {
+    s.history.forEach(h => {
+      if (h && h.date) dataMap.set(h.date, { ...h });
+    });
+  }
+  if (Array.isArray(s.weekly)) {
+    s.weekly.forEach(w => {
+      if (w && w.date) {
+        const existing = dataMap.get(w.date) || {};
+        dataMap.set(w.date, {
+          ...existing,
+          date: w.date,
+          completed: w.completed,
+          total: w.total
+        });
+      }
+    });
+  }
+  // Include today's live state
+  const tKey = todayKey();
+  const todayRoutine = s.routines ? s.routines.find(r => r.id === s.today.routineId) : null;
+  dataMap.set(tKey, {
+    date: tKey,
+    completed: (s.today && Array.isArray(s.today.completed)) ? s.today.completed.length : 0,
+    total: todayRoutine ? todayRoutine.exercises.length : 0,
+    water: (s.today && Array.isArray(s.today.water)) ? s.today.water.reduce((acc, e) => acc + e.ml, 0) : 0
+  });
+
+  // Generate 28 rolling calendar days ending at today
+  const days = [];
+  const today = parseLocalDate(tKey);
+  for (let i = 27; i >= 0; i--) {
+    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() - i);
+    days.push(toLocalDateKey(d));
+  }
+
+  days.forEach(dateKey => {
+    const info = dataMap.get(dateKey) || { completed: 0, total: 0, water: 0 };
+    const completed = info.completed || 0;
+    const total = info.total || 0;
+    const isToday = dateKey === tKey;
+
+    let level = '0';
+    if (total > 0 && completed >= total) {
+      level = '2';
+    } else if (completed > 0) {
+      level = '1';
+    }
+
+    const cell = document.createElement('div');
+    cell.className = `heatmap-cell level-${level}` + (isToday ? ' today-cell' : '');
+    cell.setAttribute('tabindex', '0');
+    cell.setAttribute('role', 'gridcell');
+
+    const dObj = parseLocalDate(dateKey);
+    const dayNum = dObj.getDate();
+    cell.textContent = dayNum;
+
+    const accessibleLabel = `${formatDate(dateKey)}: ${completed} of ${total} exercises completed${info.water ? `, ${info.water} ml hydration` : ''}`;
+    cell.setAttribute('aria-label', accessibleLabel);
+
+    // Hover tooltip handlers
+    if (tooltip) {
+      const showTip = () => {
+        tooltip.innerHTML = `<strong>${formatDate(dateKey)}${isToday ? ' (Today)' : ''}</strong><br/>Exercises: ${completed}/${total}<br/>Hydration: ${info.water || 0} ml`;
+        tooltip.hidden = false;
+        const rect = cell.getBoundingClientRect();
+        const parentRect = container.getBoundingClientRect();
+        tooltip.style.left = `${rect.left - parentRect.left + (rect.width / 2) - 60}px`;
+        tooltip.style.top = `${rect.top - parentRect.top - 58}px`;
+      };
+      const hideTip = () => {
+        tooltip.hidden = true;
+      };
+
+      cell.addEventListener('mouseenter', showTip);
+      cell.addEventListener('mouseleave', hideTip);
+      cell.addEventListener('focus', showTip);
+      cell.addEventListener('blur', hideTip);
+    }
+
+    container.appendChild(cell);
+  });
+}
+
+/* ── BIOMECHANICAL & MUSCLE ANALYTICS RENDER ─────────────────*/
+function renderMuscleAnalytics(s) {
+  const donutSvg = document.getElementById('chart-muscle-donut');
+  const donutLegend = document.getElementById('donut-legend');
+  const radarSvg = document.getElementById('chart-muscle-radar');
+  const totalCountEl = document.getElementById('donut-total-exercises');
+  const balanceScoreEl = document.getElementById('radar-balance-score');
+
+  if (!donutSvg && !radarSvg) return;
+
+  const categories = [
+    { key: 'chest',     label: 'Chest',     color: '#c6ff00' },
+    { key: 'back',      label: 'Back',      color: '#00e5ff' },
+    { key: 'legs',      label: 'Legs',      color: '#ff9100' },
+    { key: 'shoulders', label: 'Shoulders', color: '#b388ff' },
+    { key: 'arms',      label: 'Arms',      color: '#ff4081' },
+    { key: 'cardio',    label: 'Cardio',    color: '#00e676' },
+  ];
+
+  const counts = { chest: 0, back: 0, legs: 0, shoulders: 0, arms: 0, cardio: 0 };
+  let totalExercises = 0;
+
+  (s.routines || []).forEach(r => {
+    const cat = (r.category || '').toLowerCase();
+    const count = Array.isArray(r.exercises) ? r.exercises.length : 0;
+    if (counts[cat] !== undefined) {
+      counts[cat] += count;
+    } else {
+      counts.cardio += count;
+    }
+    totalExercises += count;
+  });
+
+  if (totalCountEl) {
+    totalCountEl.textContent = totalExercises;
+  }
+
+  const svgNS = 'http://www.w3.org/2000/svg';
+
+  // 1. DONUT CHART
+  if (donutSvg) {
+    donutSvg.innerHTML = '<title>Muscle Group Distribution</title>';
+    const cx = 100, cy = 100, r = 68;
+    const circumference = 2 * Math.PI * r;
+
+    // Track circle
+    const track = document.createElementNS(svgNS, 'circle');
+    track.setAttribute('cx', cx);
+    track.setAttribute('cy', cy);
+    track.setAttribute('r', r);
+    track.setAttribute('fill', 'none');
+    track.setAttribute('stroke', 'rgba(255, 255, 255, 0.05)');
+    track.setAttribute('stroke-width', '20');
+    donutSvg.appendChild(track);
+
+    if (totalExercises > 0) {
+      let accumulatedOffset = 0;
+      categories.forEach(cat => {
+        const count = counts[cat.key];
+        if (count === 0) return;
+
+        const fraction = count / totalExercises;
+        const segmentLength = fraction * circumference;
+        const dashArray = `${segmentLength.toFixed(2)} ${(circumference - segmentLength).toFixed(2)}`;
+
+        const circle = document.createElementNS(svgNS, 'circle');
+        circle.setAttribute('class', 'donut-segment');
+        circle.setAttribute('cx', cx);
+        circle.setAttribute('cy', cy);
+        circle.setAttribute('r', r);
+        circle.setAttribute('fill', 'none');
+        circle.setAttribute('stroke', cat.color);
+        circle.setAttribute('stroke-width', '20');
+        circle.setAttribute('stroke-dasharray', dashArray);
+        circle.setAttribute('stroke-dashoffset', (-accumulatedOffset).toFixed(2));
+
+        const title = document.createElementNS(svgNS, 'title');
+        title.textContent = `${cat.label}: ${count} exercises (${Math.round(fraction * 100)}%)`;
+        circle.appendChild(title);
+
+        donutSvg.appendChild(circle);
+        accumulatedOffset += segmentLength;
+      });
+    }
+
+    // Donut Legend
+    if (donutLegend) {
+      donutLegend.innerHTML = '';
+      categories.forEach(cat => {
+        const count = counts[cat.key];
+        const pct = totalExercises > 0 ? Math.round((count / totalExercises) * 100) : 0;
+
+        const item = document.createElement('div');
+        item.className = 'donut-legend-item';
+        item.setAttribute('role', 'listitem');
+
+        const dot = document.createElement('span');
+        dot.className = 'legend-dot';
+        dot.style.background = cat.color;
+
+        const text = document.createElement('span');
+        text.textContent = `${cat.label}: ${count} (${pct}%)`;
+
+        item.appendChild(dot);
+        item.appendChild(text);
+        donutLegend.appendChild(item);
+      });
+    }
+  }
+
+  // 2. RADAR CHART
+  if (radarSvg) {
+    radarSvg.innerHTML = '<title>Performance Symmetry Radar</title>';
+    const cx = 120, cy = 110, maxR = 70;
+    const numAxes = categories.length;
+    const angleStep = (2 * Math.PI) / numAxes;
+
+    // Hexagonal Concentric Web Grids (25%, 50%, 75%, 100%)
+    [0.25, 0.5, 0.75, 1.0].forEach(level => {
+      const gridR = maxR * level;
+      const pts = [];
+      for (let i = 0; i < numAxes; i++) {
+        const angle = i * angleStep - Math.PI / 2;
+        const x = cx + gridR * Math.cos(angle);
+        const y = cy + gridR * Math.sin(angle);
+        pts.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+      }
+      const poly = document.createElementNS(svgNS, 'polygon');
+      poly.setAttribute('class', 'radar-web');
+      poly.setAttribute('points', pts.join(' '));
+      radarSvg.appendChild(poly);
+    });
+
+    // Axis Spokes & Labels
+    categories.forEach((cat, i) => {
+      const angle = i * angleStep - Math.PI / 2;
+      const xEnd = cx + maxR * Math.cos(angle);
+      const yEnd = cy + maxR * Math.sin(angle);
+
+      // Spoke
+      const spoke = document.createElementNS(svgNS, 'line');
+      spoke.setAttribute('class', 'radar-spoke');
+      spoke.setAttribute('x1', cx);
+      spoke.setAttribute('y1', cy);
+      spoke.setAttribute('x2', xEnd.toFixed(1));
+      spoke.setAttribute('y2', yEnd.toFixed(1));
+      radarSvg.appendChild(spoke);
+
+      // Label outside grid
+      const labelR = maxR + 18;
+      const xLabel = cx + labelR * Math.cos(angle);
+      const yLabel = cy + labelR * Math.sin(angle);
+
+      const label = document.createElementNS(svgNS, 'text');
+      label.setAttribute('class', 'radar-label');
+      label.setAttribute('x', xLabel.toFixed(1));
+      label.setAttribute('y', yLabel.toFixed(1));
+      label.textContent = cat.key.toUpperCase();
+      radarSvg.appendChild(label);
+    });
+
+    // Data polygon
+    const maxVal = Math.max(...Object.values(counts), 1);
+    const dataPts = [];
+
+    categories.forEach((cat, i) => {
+      const val = counts[cat.key];
+      const ratio = totalExercises > 0 ? (val / maxVal) : 0.05;
+      const r = Math.max(maxR * ratio, 6);
+      const angle = i * angleStep - Math.PI / 2;
+      const x = cx + r * Math.cos(angle);
+      const y = cy + r * Math.sin(angle);
+      dataPts.push({ x, y, val, label: cat.label });
+    });
+
+    const pointsAttr = dataPts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+    const dataPolygon = document.createElementNS(svgNS, 'polygon');
+    dataPolygon.setAttribute('class', 'radar-polygon');
+    dataPolygon.setAttribute('points', pointsAttr);
+    radarSvg.appendChild(dataPolygon);
+
+    // Data vertices
+    dataPts.forEach(p => {
+      const v = document.createElementNS(svgNS, 'circle');
+      v.setAttribute('class', 'radar-vertex');
+      v.setAttribute('cx', p.x.toFixed(1));
+      v.setAttribute('cy', p.y.toFixed(1));
+      v.setAttribute('r', '3.5');
+      const title = document.createElementNS(svgNS, 'title');
+      title.textContent = `${p.label}: ${p.val}`;
+      v.appendChild(title);
+      radarSvg.appendChild(v);
+    });
+
+    // Symmetry Score Calculation
+    if (balanceScoreEl) {
+      const activeCount = categories.filter(c => counts[c.key] > 0).length;
+      if (totalExercises === 0) {
+        balanceScoreEl.textContent = 'NO ROUTINES';
+        balanceScoreEl.style.color = 'var(--color-text-dim)';
+      } else if (activeCount >= 5) {
+        balanceScoreEl.textContent = 'OPTIMAL (BALANCED)';
+        balanceScoreEl.style.color = 'var(--color-primary)';
+      } else if (activeCount >= 3) {
+        balanceScoreEl.textContent = 'MODERATE DISTRIBUTION';
+        balanceScoreEl.style.color = 'var(--color-secondary)';
+      } else {
+        balanceScoreEl.textContent = 'SPECIALIZED FOCUS';
+        balanceScoreEl.style.color = 'var(--color-warning)';
+      }
+    }
   }
 }
 
@@ -1546,6 +1990,23 @@ function trapFocus(modal) {
   });
 }
 
+/* ── MILESTONE BANNER ────────────────────────────────────────*/
+function initMilestoneBanner() {
+  const btn = document.getElementById('btn-milestone-close');
+  const banner = document.getElementById('milestone-banner');
+  if (!btn || !banner) return;
+  btn.addEventListener('click', () => {
+    banner.hidden = true;
+    if (typeof sessionStorage !== 'undefined') {
+      try {
+        sessionStorage.setItem('gymflow_milestone_dismissed_' + todayKey(), '1');
+      } catch (e) {
+        // ignore storage errors
+      }
+    }
+  });
+}
+
 /* ── INIT ────────────────────────────────────────────────────*/
 document.addEventListener('DOMContentLoaded', () => {
   State.init();
@@ -1557,6 +2018,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initGoals();
   initReset();
   initDataManagement();
+  initMilestoneBanner();
 
   // Set up focus traps for all modals
   ['modal-routine', 'modal-reset', 'modal-delete-routine'].forEach(id => {
@@ -1570,6 +2032,7 @@ if (typeof window !== 'undefined') {
     Storage, State, toLocalDateKey, todayKey, parseLocalDate, formatDate,
     buildEmptyWeek, syncTodayWeekly, ensureWeeklyRolling, archiveDayToHistory,
     calculateStreak, validateImportData, exportBackupData, handleImportFile,
-    formatExerciseMeta, formatExerciseCompact, makeSampleData
+    formatExerciseMeta, formatExerciseCompact, makeSampleData,
+    animateNumber, renderMonthlyHeatmap, renderMuscleAnalytics
   };
 }
